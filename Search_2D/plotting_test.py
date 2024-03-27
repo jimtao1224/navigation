@@ -7,6 +7,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import numpy as np
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
@@ -14,53 +15,52 @@ from Search_2D import env_test
 
 
 class Plotting:
-    def __init__(self, xI, xG):
+    def __init__(self, xI, xG,env):
         self.xI, self.xG = xI, xG
-        self.env = env_test.Env()
+        self.env = env  
         self.obs = self.env.obs_map()
-        # self.fig= plt.figure()
         self.fig, self.ax = plt.subplots()
     def update_obs(self, obs):
         self.obs = obs
 
-    def animation(self, path, visited, name):
-        self.plot_grid(name)
-        self.plot_visited(visited)
-        self.plot_path(path)
-        plt.show()
+    # def animation(self, path, visited, name):
+    #     self.plot_grid(name)
+    #     # self.plot_visited(visited)
+    #     # self.plot_path(path)
+    #     plt.show()
 
-    def animation_lrta(self, path, visited, name):
-        self.plot_grid(name)
-        cl = self.color_list_2()
-        path_combine = []
+    # def animation_lrta(self, path, visited, name):
+    #     self.plot_grid(name)
+    #     cl = self.color_list_2()
+    #     path_combine = []
 
-        for k in range(len(path)):
-            self.plot_visited(visited[k], cl[k])
-            plt.pause(0.2)
-            self.plot_path(path[k])
-            path_combine += path[k]
-            plt.pause(0.2)
-        if self.xI in path_combine:
-            path_combine.remove(self.xI)
-        self.plot_path(path_combine)
-        plt.show()
+    #     for k in range(len(path)):
+    #         self.plot_visited(visited[k], cl[k])
+    #         plt.pause(0.2)
+    #         self.plot_path(path[k])
+    #         path_combine += path[k]
+    #         plt.pause(0.2)
+    #     if self.xI in path_combine:
+    #         path_combine.remove(self.xI)
+    #     self.plot_path(path_combine)
+    #     plt.show()
 
-    def animation_ara_star(self, path, visited, name):
-        self.plot_grid(name)
-        cl_v, cl_p = self.color_list()
+    # def animation_ara_star(self, path, visited, name):
+    #     self.plot_grid(name)
+    #     cl_v, cl_p = self.color_list()
 
-        for k in range(len(path)):
-            self.plot_visited(visited[k], cl_v[k])
-            self.plot_path(path[k], cl_p[k], True)
-            plt.pause(0.5)
+    #     for k in range(len(path)):
+    #         self.plot_visited(visited[k], cl_v[k])
+    #         self.plot_path(path[k], cl_p[k], True)
+    #         plt.pause(0.5)
 
-        plt.show()
+    #     plt.show()
 
-    def animation_bi_astar(self, path, v_fore, v_back, name):
-        self.plot_grid(name)
-        self.plot_visited_bi(v_fore, v_back)
-        self.plot_path(path)
-        plt.show()
+    # def animation_bi_astar(self, path, v_fore, v_back, name):
+    #     self.plot_grid(name)
+    #     self.plot_visited_bi(v_fore, v_back)
+    #     self.plot_path(path)
+    #     plt.show()
 
     def plot_grid(self, name):
         obs_x = [x[0] for x in self.obs]
@@ -68,74 +68,102 @@ class Plotting:
 
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
+        # print(self.xI[0], self.xI[1],
+        #       self.xG[0], self.xG[1], "plot_grid")
         plt.plot(obs_x, obs_y, "sk")
         self.plot_scale_b_borders()
         plt.title(name)
         plt.axis("equal")
 
-    def plot_visited(self, visited, cl='gray'):
-        if self.xI in visited:
-            visited.remove(self.xI)
+    # def plot_visited(self, visited, cl='gray'):
+    #     if self.xI in visited:
+    #         visited.remove(self.xI)
 
-        if self.xG in visited:
-            visited.remove(self.xG)
+    #     if self.xG in visited:
+    #         visited.remove(self.xG)
 
-        count = 0
+    #     count = 0
 
-        for x in visited:
-            count += 1
-            plt.plot(x[0], x[1], color=cl, marker='o')
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event: [exit(0) if event.key == 'escape' else None])
+    #     for x in visited:
+    #         count += 1
+    #         plt.plot(x[0], x[1], color=cl, marker='o')
+    #         plt.gcf().canvas.mpl_connect('key_release_event',
+    #                                      lambda event: [exit(0) if event.key == 'escape' else None])
 
-            if count < len(visited) / 3:
-                length = 20
-            elif count < len(visited) * 2 / 3:
-                length = 30
-            else:
-                length = 40
-            #
-            # length = 15
+    #         if count < len(visited) / 3:
+    #             length = 20
+    #         elif count < len(visited) * 2 / 3:
+    #             length = 30
+    #         else:
+    #             length = 40
+    #         #
+    #         # length = 15
 
-            if count % length == 0:
-                plt.pause(0.001)
-        plt.pause(0.01)
+    #         if count % length == 0:
+    #             plt.pause(0.001)
+    #     plt.pause(0.01)
 
-    def plot_path(self, path, cl='r', flag=False):
+    def plot_path(self, path, cl='r'):
         path_x = [path[i][0] for i in range(len(path))]
         path_y = [path[i][1] for i in range(len(path))]
+        # print(path_x, path_y, "path_x, path_y")
+        self.ax.set_xlim(0, self.env.x_range_A - 1)
+        self.ax.set_ylim(0, self.env.y_range_A - 1)
+        print(self.env.x_range_A,"self.env.x_range_A")
+    
+        plt.plot(path_x, path_y, linewidth='1', color='b')
 
-        if not flag:
-            plt.plot(path_x, path_y, linewidth='3', color='r')
-        else:
-            plt.plot(path_x, path_y, linewidth='3', color=cl)
 
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
 
         plt.pause(0.01)
+    
+    def animate_path(self, path):
+        x_data, y_data = [], []
+        self.ax.set_xlim(0, self.env.x_range_A - 1)
+        print(self.env.x_range_A,"self.env.x_range_A")
+        self.ax.set_ylim(0, self.env.y_range_A - 1)
+        line, = plt.plot([], [], 'yo-', animated=True)
+        point, = plt.plot([], [], 'y-', animated=True)
 
-    def plot_visited_bi(self, v_fore, v_back):
-        if self.xI in v_fore:
-            v_fore.remove(self.xI)
+        def init():
+            self.ax.set_xlim(0, self.env.x_range_A - 1)
+            self.ax.set_ylim(0, self.env.y_range_A - 1)
+            return line, point
 
-        if self.xG in v_back:
-            v_back.remove(self.xG)
+        def update(frame):
+            x_data.append(path[frame][0])
+            y_data.append(path[frame][1])
+            line.set_data(x_data[-1], y_data[-1])
+            point.set_data(x_data, y_data)
+            # print(x_data, y_data)
+            return line, point
 
-        len_fore, len_back = len(v_fore), len(v_back)
+        ani = animation.FuncAnimation(self.fig, update, frames=range(len(path)),
+                                      init_func=init, blit=True, repeat=False)
 
-        for k in range(max(len_fore, len_back)):
-            if k < len_fore:
-                plt.plot(v_fore[k][0], v_fore[k][1], linewidth='3', color='gray', marker='o')
-            if k < len_back:
-                plt.plot(v_back[k][0], v_back[k][1], linewidth='3', color='cornflowerblue', marker='o')
+    # def plot_visited_bi(self, v_fore, v_back):
+    #     if self.xI in v_fore:
+    #         v_fore.remove(self.xI)
 
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event: [exit(0) if event.key == 'escape' else None])
+    #     if self.xG in v_back:
+    #         v_back.remove(self.xG)
 
-            if k % 10 == 0:
-                plt.pause(0.001)
-        plt.pause(0.01)
+    #     len_fore, len_back = len(v_fore), len(v_back)
+
+    #     for k in range(max(len_fore, len_back)):
+    #         if k < len_fore:
+    #             plt.plot(v_fore[k][0], v_fore[k][1], linewidth='3', color='gray', marker='o')
+    #         if k < len_back:
+    #             plt.plot(v_back[k][0], v_back[k][1], linewidth='3', color='cornflowerblue', marker='o')
+
+    #         plt.gcf().canvas.mpl_connect('key_release_event',
+    #                                      lambda event: [exit(0) if event.key == 'escape' else None])
+
+    #         if k % 10 == 0:
+    #             plt.pause(0.001)
+    #     plt.pause(0.01)
 
     def plot_scale_b_borders(self):
         """
@@ -145,8 +173,20 @@ class Plotting:
             self.ax.plot([x, x], [0, self.env.y_range_A-1], color='r')  # Vertical lines
         for y in range(0, self.env.y_range_A, 10):
             self.ax.plot([0, self.env.x_range_A-1], [y, y], color='r')
+            # 创建新的座标轴，共享原始 x 轴
+        ax2 = self.ax.twiny()
+        ax2.xaxis.set_ticks_position("bottom")  # 将新 x 轴设置在底部
+        ax2.xaxis.set_label_position("bottom")  # 将新 x 轴标签设置在底部
+        ax2.spines["bottom"].set_position(("axes", -0.15))  # 调整新 x 轴的位置
 
+        # 设置新座标轴的刻度，假设每个 B 尺度的单位代表 A 尺度下的 10 个单位
+        new_tick_locations = np.arange(0, self.env.x_range_A, 10)
 
+        # 设置新座标轴的刻度和刻度标签
+        ax2.set_xticks(new_tick_locations)
+        ax2.set_xticklabels(new_tick_locations // 10)  # B 尺度的刻度标签
+        ax2.set_xlim(self.ax.get_xlim())  
+        ax2.set_ylim(self.ax.get_ylim())
 
 
 

@@ -22,41 +22,58 @@ class DStar:
         scale = 'A'
         self.scale = scale
         self.s_start, self.s_goal = s_start, s_goal
-        self.s_start_B,self.s_goal_B = self.coordinate_translate(s_start, s_goal)
-        print(self.s_start_B,self.s_goal_B)
+
+        # self.s_start_B,self.s_goal_B = self.coordinate_translate(s_start, s_goal)
+        # self.s_start, self.s_goal = self.s_start_B, self.s_goal_B
+        print(self.s_start, self.s_goal)
         self.heuristic_type = heuristic_type
         self.Env = env_test.Env()  # class Env
-        self.Plot = plotting_test.Plotting(s_start, s_goal)
+        self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,self.Env) 
         self.u_set = self.Env.motions  # feasible input set
-        # self.obs = self.Env.generate_sub_map_obs()  # position of obstacles
-        self.obs = self.Env.obs
+        self.Env.obs = self.Env.obs
         self.x = self.Env.x_range_A
         self.y = self.Env.y_range_A
+        self.x, self.y = self.set_scale(scale)
+        # self.x = self.Env.x_range_B
+        # self.y = self.Env.y_range_B
         self.g, self.rhs, self.U = {}, {}, {}
         self.km = 0
         for i in range(1, self.x - 1):
             for j in range(1, self.y - 1):
                 self.rhs[(i, j)] = float("inf")
                 self.g[(i, j)] = float("inf")
-        # for i in range(1, self.Env.x_range - 1):
-        #     for j in range(1, self.Env.y_range - 1):
-        #         self.rhs[(i, j)] = float("inf")
-        #         self.g[(i, j)] = float("inf")
         self.rhs[self.s_goal] = 0.0
         self.U[self.s_goal] = self.CalculateKey(self.s_goal)
+        # print(self.U)
         self.visited = set()
         self.count=0
         # self.fig= plt.figure()
+    
+    def set_scale(self,scale):
+        self.scale = scale
+        if scale == 'A':
+            self.x = self.Env.x_range_A
+            self.y = self.Env.y_range_A
+            return self.x,self.y
+        elif self.scale == 'B':
+            self.x = self.Env.x_range_B
+            self.y = self.Env.y_range_B
+            return self.x,self.y
 
     def run(self):
-        self.Plot.plot_grid("D* Lite")
+        # self.Plot.plot_grid("D* Lite")
+        self.plotter.plot_grid("D* Lite")
         start_time = time.time()
+        # self.node_list(self.x,self.y)
         self.ComputePath()
-        self.plot_path(self.extract_path())
+        # print(self.extract_path())
+        self.plotter.plot_path(self.extract_path())
+        # self.plotter.animate_path(self.extract_path())
+        # self.plot_path(self.extract_path())
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
         plt.show()
-
+        
 
     def ComputePath(self):
         while True:
@@ -64,11 +81,10 @@ class DStar:
             if v >=self.CalculateKey(self.s_start) and \
                     self.rhs[self.s_start] == self.g[self.s_start]:
                 break
-                
+            # print(self.U)    
             k_old = v
             self.U.pop(s)
             self.visited.add(s)
-            # print(s)
             if k_old < self.CalculateKey(s):
                 self.U[s] = self.CalculateKey(s)
             elif self.g[s] > self.rhs[s]:
@@ -127,7 +143,7 @@ class DStar:
         return math.hypot(s_goal[0] - s_start[0], s_goal[1] - s_start[1])
 
     def is_collision(self, s_start, s_end):
-        if s_start in self.obs or s_end in self.obs:
+        if s_start in self.Env.obs or s_end in self.Env.obs:
             return True
 
         if s_start[0] != s_end[0] and s_start[1] != s_end[1]:
@@ -138,7 +154,7 @@ class DStar:
                 s1 = (min(s_start[0], s_end[0]), max(s_start[1], s_end[1]))
                 s2 = (max(s_start[0], s_end[0]), min(s_start[1], s_end[1]))
 
-            if s1 in self.obs or s2 in self.obs:
+            if s1 in self.Env.obs or s2 in self.Env.obs:
                 return True
 
         return False
@@ -155,8 +171,8 @@ class DStar:
         #     file.write(f"{s},{self.U}\n")
         for u in self.u_set:
             s_next = tuple([s[i] + u[i]   for i in range(2)])    
-            # if 0 <= s_next[0] < 100 and 0 <= s_next[1] < 60 and s_next not in self.obs:    
-            if s_next not in self.obs:
+            # if 0 <= s_next[0] < 100 and 0 <= s_next[1] < 60 and s_next not in self.Env.obs:    
+            if s_next not in self.Env.obs:
                 nei_list.add(s_next) 
         return nei_list
 
@@ -181,40 +197,8 @@ class DStar:
             path.append(s)
             if s == self.s_goal:
                 break
-
         return list(path)
 
-    def plot_path(self, path):
-        # self.Plot.plot_grid("D* Lite moving point")
-        x_data, y_data = [], []
-         # 顯示移動路徑
-        line, = plt.plot([], [], 'yo-', animated=True)
-        point,= plt.plot([], [], 'y-', animated=True)
-
-        px = [x[0] for x in path]
-        py = [x[1] for x in path]
-        plt.plot(px, py, linewidth=2, color="blue")
-        plt.plot(self.s_start[0], self.s_start[1], "bs")
-        plt.plot(self.s_goal[0], self.s_goal[1], "gs")
-        # print(list(path))
-        def init():
-            self.Plot.ax.set_xlim(0, self.x - 1)
-            self.Plot.ax.set_ylim(0, self.y - 1)
-            # ax.set_xlim(0, self.x - 1)
-            # ax.set_ylim(0, self.y - 1)
-            return line,point
-
-        def update(frame):
-            # x, y = path[frame]
-            x_data.append(path[frame][0])
-            y_data.append(path[frame][1])
-            line.set_data(x_data[-1], y_data[-1])   
-            point.set_data(x_data,y_data)
-            # ln.set_data(x, y)
-            # 不顯示移動路徑
-            return line,point
-        ani = animation.FuncAnimation(self.Plot.fig, update, frames=range(len(path)),
-                                      init_func=init, blit=True,repeat=False)
     def plot_visited(self, visited):
         color = ['gainsboro', 'lightgray', 'silver', 'darkgray',
                  'bisque', 'navajowhite', 'moccasin', 'wheat',
@@ -232,9 +216,16 @@ class DStar:
         else :
         
             return s_start,s_goal
+    def node_list(scale,x_range,y_range):
+        node_list = []
+        for i in range(1,x_range-1):
+            for j in range(1,y_range-1):
+                node_list.append((i, j))
+        return node_list
+
 def main():
-    s_start = (12, 12)
-    s_goal = (90, 90)
+    s_start = (20, 20)
+    s_goal = (50, 70)
     dstar = DStar(s_start, s_goal, "euclidean") 
     dstar.run()
 
