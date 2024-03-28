@@ -19,23 +19,16 @@ from Search_2D import plotting_test, env_test
 
 class DStar:
     def __init__(self, s_start, s_goal, heuristic_type):
-        scale = 'A'
+        scale = env_test.Env().scale
         self.scale = scale
-        self.s_start, self.s_goal = s_start, s_goal
-
-        # self.s_start_B,self.s_goal_B = self.coordinate_translate(s_start, s_goal)
-        # self.s_start, self.s_goal = self.s_start_B, self.s_goal_B
+        self.s_start, self.s_goal = self.coordinate_translate(s_start, s_goal)
         print(self.s_start, self.s_goal)
         self.heuristic_type = heuristic_type
         self.Env = env_test.Env()  # class Env
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,self.Env) 
         self.u_set = self.Env.motions  # feasible input set
         self.Env.obs = self.Env.obs
-        self.x = self.Env.x_range_A
-        self.y = self.Env.y_range_A
         self.x, self.y = self.set_scale(scale)
-        # self.x = self.Env.x_range_B
-        # self.y = self.Env.y_range_B
         self.g, self.rhs, self.U = {}, {}, {}
         self.km = 0
         for i in range(1, self.x - 1):
@@ -68,7 +61,7 @@ class DStar:
         self.ComputePath()
         # print(self.extract_path())
         self.plotter.plot_path(self.extract_path())
-        # self.plotter.animate_path(self.extract_path())
+        self.plotter.animate_path(self.extract_path())
         # self.plot_path(self.extract_path())
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
@@ -211,10 +204,9 @@ class DStar:
             plt.plot(x[0], x[1], marker='s', color=color[self.count])
 
     def coordinate_translate(self,s_start,s_goal):
-        if self.scale == 'A':
+        if self.scale == 'B':
             return (s_start[0] // 10, s_start[1] // 10), (s_goal[0] // 10, s_goal[1] // 10)
         else :
-        
             return s_start,s_goal
     def node_list(scale,x_range,y_range):
         node_list = []
@@ -224,8 +216,8 @@ class DStar:
         return node_list
 
 def main():
-    s_start = (20, 20)
-    s_goal = (50, 70)
+    s_start = (10, 10)
+    s_goal = (400, 750)
     dstar = DStar(s_start, s_goal, "euclidean") 
     dstar.run()
 

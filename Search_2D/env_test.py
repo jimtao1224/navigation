@@ -2,12 +2,12 @@ import numpy as np
 import random
 import math
 class Env:
-    def __init__(self, scale = 'A'):
+    def __init__(self, scale = 'B'):
         self.scale = scale
-        self.x_range_A = 100  # 尺度A的宽度
-        self.y_range_A = 100  # 尺度A的高度
-        self.x_range_B = 10   # 尺度B的宽度
-        self.y_range_B = 10   # 尺度B的高度
+        self.x_range_A = 1000  # 尺度A的宽度
+        self.y_range_A = 800  # 尺度A的高度
+        self.x_range_B = 100   # 尺度B的宽度
+        self.y_range_B = 100  # 尺度B的高度
         self.motions = [(-1, 0), (-1, 1), (0, 1), (1, 1),
                         (1, 0), (1, -1), (0, -1), (-1, -1)]
         self.obs = self.obs_map()
@@ -21,33 +21,116 @@ class Env:
         Initialize obstacles' positions
         :return: map of obstacles
         """
-        if self.scale == 'A' :
-            x = self.x_range_A
-            y = self.y_range_A
-            
-        elif self.scale == 'B':
-            x = self.x_range_B
-            y = self.y_range_B
-            
-        else:
-            raise ValueError("Invalid scale: {}".format(self.scale))    
-        
         obs = set()
-        obs = {(i, 0) for i in range(x)} | \
-              {(i, y - 1) for i in range(x)} | \
-              {(0, i) for i in range(y)} | \
-              {(x - 1, i) for i in range(y)}
-        for i in range(20, 40):
-            obs.add((i, 30))
-        for i in range(30):
-            obs.add((40, i))
-        for i in range(30, 60):
-            obs.add((60, i))
-        for i in range(32):
-            obs.add((80, i))
+        x_A = self.x_range_A
+        y_A = self.y_range_A
+        obs_A = set()
+        obs_A = {(i, 0) for i in range(x_A)} | \
+                {(i, y_A - 1) for i in range(x_A)} | \
+                {(0, i) for i in range(y_A)} | \
+                {(x_A - 1, i) for i in range(y_A)}
+                # Add complex obstacles (inner boundaries)
+        for i in range(100, 200):  # Increase size and complexity
+            for j in range(100, 200):  # Increase size and complexity
+                obs_A.add((i, j))
 
+        for i in range(300, 400):  # Increase size and complexity
+            for j in range(300, 400):  # Increase size and complexity
+                obs_A.add((i, j))
 
+        for i in range(600, 700):  # Increase size and complexity
+            for j in range(200, 600):  # Increase size and complexity
+                obs_A.add((i, j))
+
+        for i in range(800, 900):  # Increase size and complexity
+            for j in range(100, 700):  # Increase size and complexity
+                obs_A.add((i, j))
+
+        # Add more complex obs_Atacles
+        for i in range(200, 400, 20):  # Increase step size
+            for j in range(200, 400, 20):  # Increase step size
+                obs_A.add((i, j))
+
+        for i in range(600, 800, 20):  # Increase step size
+            for j in range(400, 600, 20):  # Increase step size
+                obs_A.add((i, j))
+
+        for i in range(400, 600, 20):  # Increase step size
+            for j in range(100, 300, 20):  # Increase step size
+                obs_A.add((i, j))
+
+        for i in range(700, 900, 20):  # Increase step size
+            for j in range(500, 700, 20):  # Increase step size
+                obs_A.add((i, j))
+        # for i in range(20, 40):
+        #     obs_A.add((i, 30))
+        # for i in range(30):
+        #     obs_A.add((40, i))
+        # for i in range(30, 60):
+        #     obs_A.add((60, i))
+        # for i in range(32):
+        #     obs_A.add((80, i))
+         
+        x_B = self.x_range_B
+        y_B = self.y_range_B
+        obs_B = set()
+        for y in range(self.y_range_B):
+            for x in range(self.x_range_B):
+                # 对于B尺度的每个节点，检查对应的A尺度10x10区块中是否存在障碍物
+                if any((x * 10 + dx, y * 10 + dy) in obs_A for dy in range(10) for dx in range(10)):
+                    obs_B.add((x, y))
+        if self.scale == 'A':
+            obs = obs_A
+        elif self.scale == 'B':
+            obs = obs_B
         return obs
+    # def obs_map(self):
+    #     """
+    #     Initialize obstacles' positions
+    #     :return: map of obstacles
+    #     """
+    #     if self.scale == 'A' :
+    #         x = self.x_range_A
+    #         y = self.y_range_A
+    #         obs = set()
+    #         obs = {(i, 0) for i in range(x)} | \
+    #             {(i, y - 1) for i in range(x)} | \
+    #             {(0, i) for i in range(y)} | \
+    #             {(x - 1, i) for i in range(y)}
+    #         for i in range(20, 40):
+    #             obs.add((i, 30))
+    #         for i in range(30):
+    #             obs.add((40, i))
+    #         for i in range(30, 60):
+    #             obs.add((60, i))
+    #         for i in range(32):
+    #             obs.add((80, i))
+        
+            
+    #     elif self.scale == 'B':
+    #         x = self.x_range_B
+    #         y = self.y_range_B
+            
+            
+    #     else:
+    #         raise ValueError("Invalid scale: {}".format(self.scale))    
+        
+    #     obs = set()
+    #     obs = {(i, 0) for i in range(x)} | \
+    #           {(i, y - 1) for i in range(x)} | \
+    #           {(0, i) for i in range(y)} | \
+    #           {(x - 1, i) for i in range(y)}
+    #     for i in range(20, 40):
+    #         obs.add((i, 30))
+    #     for i in range(30):
+    #         obs.add((40, i))
+    #     for i in range(30, 60):
+    #         obs.add((60, i))
+    #     for i in range(32):
+    #         obs.add((80, i))
+
+
+    #     return obs
 
     def get_obstacle_density(self):
         """

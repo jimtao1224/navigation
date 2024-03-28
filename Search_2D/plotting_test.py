@@ -16,13 +16,28 @@ from Search_2D import env_test
 
 class Plotting:
     def __init__(self, xI, xG,env):
+        scale = env_test.Env().scale
+        self.scale = scale
+        self.Env = env_test.Env()  # class Env
         self.xI, self.xG = xI, xG
-        self.env = env  
+        self.env = env 
+        self.x_range, self.y_range = self.set_scale(scale)
         self.obs = self.env.obs_map()
         self.fig, self.ax = plt.subplots()
     def update_obs(self, obs):
         self.obs = obs
 
+    def set_scale(self,scale):
+        self.scale = scale
+        if scale == 'A':
+            self.x = self.Env.x_range_A
+            self.y = self.Env.y_range_A
+            return self.x,self.y
+        elif self.scale == 'B':
+            self.x = self.Env.x_range_B
+            self.y = self.Env.y_range_B
+            return self.x,self.y
+        
     # def animation(self, path, visited, name):
     #     self.plot_grid(name)
     #     # self.plot_visited(visited)
@@ -68,10 +83,8 @@ class Plotting:
 
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
-        # print(self.xI[0], self.xI[1],
-        #       self.xG[0], self.xG[1], "plot_grid")
         plt.plot(obs_x, obs_y, "sk")
-        self.plot_scale_b_borders()
+        # self.plot_scale_b_borders()
         plt.title(name)
         plt.axis("equal")
 
@@ -107,29 +120,29 @@ class Plotting:
         path_x = [path[i][0] for i in range(len(path))]
         path_y = [path[i][1] for i in range(len(path))]
         # print(path_x, path_y, "path_x, path_y")
-        self.ax.set_xlim(0, self.env.x_range_A - 1)
-        self.ax.set_ylim(0, self.env.y_range_A - 1)
-        print(self.env.x_range_A,"self.env.x_range_A")
+        self.ax.set_xlim(0, self.x_range - 1)
+        self.ax.set_ylim(0, self.y_range - 1)
+        # print(self.env.x_range_A,"self.env.x_range_A")
     
         plt.plot(path_x, path_y, linewidth='1', color='b')
 
-
+        
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
-
-        plt.pause(0.01)
+        print(self.xI[0], self.xI[1],
+              self.xG[0], self.xG[1], "plot_path")
+        # plt.pause(0.01)
     
     def animate_path(self, path):
         x_data, y_data = [], []
-        self.ax.set_xlim(0, self.env.x_range_A - 1)
-        print(self.env.x_range_A,"self.env.x_range_A")
-        self.ax.set_ylim(0, self.env.y_range_A - 1)
+        self.ax.set_xlim(0, self.x_range - 1)
+        self.ax.set_ylim(0, self.y_range - 1)
         line, = plt.plot([], [], 'yo-', animated=True)
         point, = plt.plot([], [], 'y-', animated=True)
 
         def init():
-            self.ax.set_xlim(0, self.env.x_range_A - 1)
-            self.ax.set_ylim(0, self.env.y_range_A - 1)
+            self.ax.set_xlim(0, self.x_range - 1)
+            self.ax.set_ylim(0, self.y_range - 1)
             return line, point
 
         def update(frame):
@@ -166,13 +179,14 @@ class Plotting:
     #     plt.pause(0.01)
 
     def plot_scale_b_borders(self):
+        # 有問題會導致座標軸產生誤差
         """
         Plot the borders of B scale regions (10x10) on the 100x100 map.
         """
-        for x in range(0, self.env.x_range_A, 10):
-            self.ax.plot([x, x], [0, self.env.y_range_A-1], color='r')  # Vertical lines
-        for y in range(0, self.env.y_range_A, 10):
-            self.ax.plot([0, self.env.x_range_A-1], [y, y], color='r')
+        for x in range(0, self.env.self.x_range, 10):
+            self.ax.plot([x, x], [0, self.env.self.y_range-1], color='r')  # Vertical lines
+        for y in range(0, self.env.self.y_range, 10):
+            self.ax.plot([0, self.env.self.x_range-1], [y, y], color='r')
             # 创建新的座标轴，共享原始 x 轴
         ax2 = self.ax.twiny()
         ax2.xaxis.set_ticks_position("bottom")  # 将新 x 轴设置在底部
@@ -180,7 +194,7 @@ class Plotting:
         ax2.spines["bottom"].set_position(("axes", -0.15))  # 调整新 x 轴的位置
 
         # 设置新座标轴的刻度，假设每个 B 尺度的单位代表 A 尺度下的 10 个单位
-        new_tick_locations = np.arange(0, self.env.x_range_A, 10)
+        new_tick_locations = np.arange(0, self.env.self.x_range, 10)
 
         # 设置新座标轴的刻度和刻度标签
         ax2.set_xticks(new_tick_locations)
