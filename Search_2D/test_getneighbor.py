@@ -57,11 +57,15 @@ class DStar:
         # self.Plot.plot_grid("D* Lite")
         self.plotter.plot_grid("D* Lite")
         start_time = time.time()
+        print("A")
         # self.node_list(self.x,self.y)
         self.ComputePath()
+        print("B")
         # print(self.extract_path())
         self.plotter.plot_path(self.extract_path())
+        print("C")
         self.plotter.animate_path(self.extract_path())
+        print("D")
         # self.plot_path(self.extract_path())
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
@@ -208,16 +212,16 @@ class DStar:
             return (s_start[0] // 10, s_start[1] // 10), (s_goal[0] // 10, s_goal[1] // 10)
         else :
             return s_start,s_goal
-    def node_list(scale,x_range,y_range):
-        node_list = []
-        for i in range(1,x_range-1):
-            for j in range(1,y_range-1):
-                node_list.append((i, j))
-        return node_list
+    # def node_list(scale,x_range,y_range):
+    #     node_list = []
+    #     for i in range(1,x_range-1):
+    #         for j in range(1,y_range-1):
+    #             node_list.append((i, j))
+    #     return node_list
 
 def main():
     s_start = (10, 10)
-    s_goal = (400, 750)
+    s_goal = (400, 509)
     dstar = DStar(s_start, s_goal, "euclidean") 
     dstar.run()
 

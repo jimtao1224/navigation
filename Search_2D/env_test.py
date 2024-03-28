@@ -2,7 +2,7 @@ import numpy as np
 import random
 import math
 class Env:
-    def __init__(self, scale = 'B'):
+    def __init__(self, scale = 'A'):
         self.scale = scale
         self.x_range_A = 1000  # 尺度A的宽度
         self.y_range_A = 800  # 尺度A的高度
@@ -179,4 +179,4 @@ env = Env()  # 使用尺度A初始化環境
 print("障礙物總數:", len(env.obs))
 print("障礙物密度:", env.get_obstacle_density())
 print("地圖大小:", env.get_map_size())    
-print("障礙物到最近鄰居的平均距離:", env.avg_obstacle_distance())
+# print("障礙物到最近鄰居的平均距離:", env.avg_obstacle_distance())
