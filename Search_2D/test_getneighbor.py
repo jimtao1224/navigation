@@ -161,7 +161,7 @@ class DStar:
         distance = self.calculate_distance(s, self.s_start)
         # if distance <= 2: 
         #     self.step = 1  
-        #     print(distance)
+        #     (distance)
         # else  :
         #     self.step = 2 
         # with open("output3.txt", "a") as file: 
@@ -221,7 +221,7 @@ class DStar:
 
 def main():
     s_start = (10, 10)
-    s_goal = (400, 509)
+    s_goal = (980, 330)
     dstar = DStar(s_start, s_goal, "euclidean") 
     dstar.run()
 

@@ -2,15 +2,18 @@ import numpy as np
 import random
 import math
 class Env:
-    def __init__(self, scale = 'A'):
+    def __init__(self, scale = 'B'):
         self.scale = scale
         self.x_range_A = 1000  # 尺度A的宽度
         self.y_range_A = 800  # 尺度A的高度
         self.x_range_B = 100   # 尺度B的宽度
         self.y_range_B = 100  # 尺度B的高度
+        obstacle_threshold = 0.01
+        self.obstacle_threshold = obstacle_threshold
         self.motions = [(-1, 0), (-1, 1), (0, 1), (1, 1),
                         (1, 0), (1, -1), (0, -1), (-1, -1)]
         self.obs = self.obs_map()
+        
     def update_obs(self, obs):
         # if self.scale == 'A' :
         self.obs = obs
@@ -30,20 +33,20 @@ class Env:
                 {(0, i) for i in range(y_A)} | \
                 {(x_A - 1, i) for i in range(y_A)}
                 # Add complex obstacles (inner boundaries)
-        for i in range(100, 200):  # Increase size and complexity
-            for j in range(100, 200):  # Increase size and complexity
+        for i in range(150, 200):  # Increase size and complexity
+            for j in range(0, 700):  # Increase size and complexity
                 obs_A.add((i, j))
 
         for i in range(300, 400):  # Increase size and complexity
-            for j in range(300, 400):  # Increase size and complexity
+            for j in range(300, 800):  # Increase size and complexity
                 obs_A.add((i, j))
 
         for i in range(600, 700):  # Increase size and complexity
             for j in range(200, 600):  # Increase size and complexity
                 obs_A.add((i, j))
 
-        for i in range(800, 900):  # Increase size and complexity
-            for j in range(100, 700):  # Increase size and complexity
+        for i in range(834, 967):  # Increase size and complexity
+            for j in range(123, 680):  # Increase size and complexity
                 obs_A.add((i, j))
 
         # Add more complex obs_Atacles
@@ -76,8 +79,15 @@ class Env:
         obs_B = set()
         for y in range(self.y_range_B):
             for x in range(self.x_range_B):
-                # 对于B尺度的每个节点，检查对应的A尺度10x10区块中是否存在障碍物
-                if any((x * 10 + dx, y * 10 + dy) in obs_A for dy in range(10) for dx in range(10)):
+                # 对于B尺度的每个节点，检查对应的A尺度10x10区块中是否存在障碍物 
+                # if any((x * 10 + dx, y * 10 + dy) in obs_A for dy in range(10) for dx in range(10)):
+                #     obs_B.add((x, y))
+                obstacle_count = sum((x * 10 + dx, y * 10 + dy) in obs_A for dy 
+                                     in range(10) for dx in range(10))
+                with open('output.txt', 'a') as file:
+    # 將結果寫入檔案
+                    file.write(str(obstacle_count/100))    
+                if obstacle_count / 100 >= self.obstacle_threshold:
                     obs_B.add((x, y))
         if self.scale == 'A':
             obs = obs_A
