@@ -84,53 +84,6 @@ class Env:
         elif self.scale == 'B':
             obs = obs_B
         return obs
-    # def obs_map(self):
-    #     """
-    #     Initialize obstacles' positions
-    #     :return: map of obstacles
-    #     """
-    #     if self.scale == 'A' :
-    #         x = self.x_range_A
-    #         y = self.y_range_A
-    #         obs = set()
-    #         obs = {(i, 0) for i in range(x)} | \
-    #             {(i, y - 1) for i in range(x)} | \
-    #             {(0, i) for i in range(y)} | \
-    #             {(x - 1, i) for i in range(y)}
-    #         for i in range(20, 40):
-    #             obs.add((i, 30))
-    #         for i in range(30):
-    #             obs.add((40, i))
-    #         for i in range(30, 60):
-    #             obs.add((60, i))
-    #         for i in range(32):
-    #             obs.add((80, i))
-        
-            
-    #     elif self.scale == 'B':
-    #         x = self.x_range_B
-    #         y = self.y_range_B
-            
-            
-    #     else:
-    #         raise ValueError("Invalid scale: {}".format(self.scale))    
-        
-    #     obs = set()
-    #     obs = {(i, 0) for i in range(x)} | \
-    #           {(i, y - 1) for i in range(x)} | \
-    #           {(0, i) for i in range(y)} | \
-    #           {(x - 1, i) for i in range(y)}
-    #     for i in range(20, 40):
-    #         obs.add((i, 30))
-    #     for i in range(30):
-    #         obs.add((40, i))
-    #     for i in range(30, 60):
-    #         obs.add((60, i))
-    #     for i in range(32):
-    #         obs.add((80, i))
-
-
-    #     return obs
 
     def get_obstacle_density(self):
         """
