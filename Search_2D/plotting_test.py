@@ -139,7 +139,7 @@ class Plotting:
         self.ax.set_ylim(0, self.y_range - 1)
         line, = plt.plot([], [], 'yo-', animated=True)
         point, = plt.plot([], [], 'y-', animated=True)
-
+        total_time = len(path) - 1  # 总时间等于路径长度减一（因为从第0秒开始）
         def init():
             self.ax.set_xlim(0, self.x_range - 1)
             self.ax.set_ylim(0, self.y_range - 1)
@@ -154,7 +154,7 @@ class Plotting:
             return line, point
 
         ani = animation.FuncAnimation(self.fig, update, frames=range(len(path)),
-                                      init_func=init, blit=True, repeat=False)
+                                      init_func=init, blit=True, repeat=False,interval=100)
 
     # def plot_visited_bi(self, v_fore, v_back):
     #     if self.xI in v_fore:

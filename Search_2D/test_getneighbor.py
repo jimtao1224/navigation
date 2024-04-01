@@ -21,13 +21,20 @@ class DStar:
     def __init__(self, s_start, s_goal, heuristic_type):
         scale = env_test.Env().scale
         self.scale = scale
-        self.s_start, self.s_goal = self.coordinate_translate(s_start, s_goal)
+        self.Env = env_test.Env()
+        # self.s_start_or, self.s_goal_or = s_start, s_goal
+        if scale == 'A':
+            self.s_start = s_start
+            self.s_goal = s_goal
+        elif scale == 'B':
+            self.s_start = self.convert_to_B_scale(s_start)
+            self.s_goal = self.convert_to_B_scale(s_goal)
         print(self.s_start, self.s_goal)
-        self.heuristic_type = heuristic_type
-        self.Env = env_test.Env()  # class Env
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,self.Env) 
+          # class Env
         self.u_set = self.Env.motions  # feasible input set
         self.Env.obs = self.Env.obs
+        self.heuristic_type = heuristic_type
         self.x, self.y = self.set_scale(scale)
         self.g, self.rhs, self.U = {}, {}, {}
         self.km = 0
@@ -57,16 +64,23 @@ class DStar:
         # self.Plot.plot_grid("D* Lite")
         self.plotter.plot_grid("D* Lite")
         start_time = time.time()
-        print("A")
+        print("ComputePath")
         # self.node_list(self.x,self.y)
         self.ComputePath()
-        print("B")
+        if self.scale == 'A':
+            print("plot_path")
+            self.plotter.plot_path(self.extract_path())    
+            print("animate_path")
+            self.plotter.animate_path(self.extract_path())
+
+        elif self.scale == 'B':
+            print("plot_path")
+            self.plotter.plot_path(self.extract_path())    
+            print("animate_path")
+            self.plotter.animate_path(self.extract_path())
         # print(self.extract_path())
-        self.plotter.plot_path(self.extract_path())
-        print("C")
-        self.plotter.animate_path(self.extract_path())
-        print("D")
-        # self.plot_path(self.extract_path())
+        # self.plotter.plot_path(self.extract_path())
+        # self.plotter.animate_path(self.extract_path())
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
         plt.show()
@@ -206,18 +220,17 @@ class DStar:
 
         for x in visited:
             plt.plot(x[0], x[1], marker='s', color=color[self.count])
-
-    def coordinate_translate(self,s_start,s_goal):
-        if self.scale == 'B':
-            return (s_start[0] // 10, s_start[1] // 10), (s_goal[0] // 10, s_goal[1] // 10)
-        else :
-            return s_start,s_goal
-    # def node_list(scale,x_range,y_range):
-    #     node_list = []
-    #     for i in range(1,x_range-1):
-    #         for j in range(1,y_range-1):
-    #             node_list.append((i, j))
-    #     return node_list
+    def convert_to_B_scale(self, a_scale_point):
+        # 計算A尺度到B尺度的轉換比例
+        x_ratio = self.Env.x_range_B / self.Env.x_range_A
+        y_ratio = self.Env.y_range_B / self.Env.y_range_A
+        # 按比例轉換A尺度點到B尺度
+        b_scale_approx = (a_scale_point[0] * x_ratio, a_scale_point[1] * y_ratio)
+        b_scale_x = max(1, min(self.Env.x_range_B - 1, int(b_scale_approx[0])))
+        b_scale_y = max(1, min(self.Env.y_range_B - 1, int(b_scale_approx[1])))
+        b_scale_point = (b_scale_x, b_scale_y)
+        return b_scale_point
+    
 
 def main():
     s_start = (10, 10)

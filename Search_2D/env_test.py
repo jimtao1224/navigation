@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import csv
 class Env:
     def __init__(self, scale = 'B'):
         self.scale = scale
@@ -13,7 +14,7 @@ class Env:
         self.motions = [(-1, 0), (-1, 1), (0, 1), (1, 1),
                         (1, 0), (1, -1), (0, -1), (-1, -1)]
         self.obs = self.obs_map()
-        
+        self.obstacle_coverage = self.get_obstacle_coverage()
     def update_obs(self, obs):
         # if self.scale == 'A' :
         self.obs = obs
@@ -95,7 +96,7 @@ class Env:
             obs = obs_B
         return obs
 
-    def get_obstacle_density(self):
+    def get_obstacle_coverage(self):
         """
         Calculate the complexity of the map by the ratio of obstacles
         :return: complexity as a float
@@ -104,8 +105,9 @@ class Env:
             total_cells = self.x_range_A * self.y_range_A
         elif self.scale == 'B':
             total_cells = self.x_range_B * self.y_range_B
-
-        return len(self.obs) / total_cells
+        obstacle_coverage = len(self.obs) / total_cells
+        return obstacle_coverage
+        # return len(self.obs) / total_cells
 
     def get_map_size(self):
         """
@@ -116,30 +118,34 @@ class Env:
             return self.x_range_A, self.y_range_A
         elif self.scale == 'B':
             return self.x_range_B, self.y_range_B
-    def avg_obstacle_distance(self):
-        """
-        Calculate the average Euclidean distance between each pair of obstacles.
-        This provides an indication of how spread out or clustered the obstacles are.
-        :return: average distance as a float
-        """
-        if not self.obs:
-            return 0
+    # def avg_obstacle_distance(self):
+    #     """
+    #     Calculate the average Euclidean distance between each pair of obstacles.
+    #     This provides an indication of how spread out or clustered the obstacles are.
+    #     :return: average distance as a float
+    #     """
+    #     if not self.obs:
+    #         return 0
 
-        total_distance = 0
-        count = 0
-        obstacles = list(self.obs)
-        for i in range(len(obstacles)):
-            for j in range(i + 1, len(obstacles)):
-                dist = math.sqrt((obstacles[i][0] - obstacles[j][0])**2 + (obstacles[i][1] - obstacles[j][1])**2)
-                total_distance += dist
-                count += 1
+    #     total_distance = 0
+    #     count = 0
+    #     obstacles = list(self.obs)
+    #     for i in range(len(obstacles)):
+    #         for j in range(i + 1, len(obstacles)):
+    #             dist = math.sqrt((obstacles[i][0] - obstacles[j][0])**2 + (obstacles[i][1] - obstacles[j][1])**2)
+    #             total_distance += dist
+    #             count += 1
 
-        if count > 0:
-            return total_distance / count
-        else:
-            return 0
+    #     if count > 0:
+    #         return total_distance / count
+    #     else:
+    #         return 0
 env = Env()  # 使用尺度A初始化環境
+data_set = [env.obstacle_coverage,env.get_map_size()]
 print("障礙物總數:", len(env.obs))
-print("障礙物密度:", env.get_obstacle_density())
+print("障礙物覆蓋率:",env.obstacle_coverage)
+with open("obstacle_coverage.csv", "w", newline="") as csvfile:
+  writer = csv.writer(csvfile)
+  writer.writerow(data_set)
 print("地圖大小:", env.get_map_size())    
 # print("障礙物到最近鄰居的平均距離:", env.avg_obstacle_distance())
