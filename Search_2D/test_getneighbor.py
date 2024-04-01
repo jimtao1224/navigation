@@ -12,7 +12,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
-from Search_2D import plotting_test, env_test
+from Search_2D import plotting_test, env_test,autorun
 # from multiprocessing import Pool, Process
 # from concurrent.futures import ProcessPoolExecutor
 # from concurrent.futures import ThreadPoolExecutor
@@ -21,14 +21,29 @@ class DStar:
     def __init__(self, s_start, s_goal, heuristic_type):
         scale = env_test.Env().scale
         self.scale = scale
+        print(self.scale, "dstar scale")
         self.Env = env_test.Env()
-        # self.s_start_or, self.s_goal_or = s_start, s_goal
+
+        # autorun_test
+        self.s_start_auto = autorun.Environment().start_point
+        self.s_goal_auto = autorun.Environment().end_point
+        print(self.s_start_auto, self.s_goal_auto)
         if scale == 'A':
-            self.s_start = s_start
-            self.s_goal = s_goal
+            self.s_start = self.s_start_auto
+            self.s_goal = self.s_goal_auto
         elif scale == 'B':
-            self.s_start = self.convert_to_B_scale(s_start)
-            self.s_goal = self.convert_to_B_scale(s_goal)
+            self.s_start = self.convert_to_B_scale(self.s_start_auto)
+            self.s_goal = self.convert_to_B_scale(self.s_goal_auto)
+        # ~~~~
+
+
+        # if scale == 'A':
+        #     self.s_start = s_start
+        #     self.s_goal = s_goal
+        # elif scale == 'B':
+        #     self.s_start = self.convert_to_B_scale(s_start)
+        #     self.s_goal = self.convert_to_B_scale(s_goal)
+        
         print(self.s_start, self.s_goal)
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,self.Env) 
           # class Env
@@ -62,10 +77,15 @@ class DStar:
 
     def run(self):
         # self.Plot.plot_grid("D* Lite")
+        # if self.s_goal == self.Env.obs:
+        #     print("The goal is in the obstacle")
+        #     return
         self.plotter.plot_grid("D* Lite")
+        print("障礙物總數:", len(self.Env.obs))
+        print("障礙物覆蓋率:",self.Env.obstacle_coverage)
+        print("地圖大小:", self.Env.get_map_size())
         start_time = time.time()
         print("ComputePath")
-        # self.node_list(self.x,self.y)
         self.ComputePath()
         if self.scale == 'A':
             print("plot_path")
@@ -78,12 +98,12 @@ class DStar:
             self.plotter.plot_path(self.extract_path())    
             print("animate_path")
             self.plotter.animate_path(self.extract_path())
-        # print(self.extract_path())
-        # self.plotter.plot_path(self.extract_path())
-        # self.plotter.animate_path(self.extract_path())
+        print(len(self.extract_path())-1,"total_time")
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
         plt.show()
+        plt.close()
+
         
 
     def ComputePath(self):
@@ -112,10 +132,13 @@ class DStar:
         if s != self.s_goal:
             self.rhs[s] = float("inf")
             for x in self.get_neighbor(s):
+                if x not in self.g:
+                    continue  # 跳过当前的邻居节点，继续下一个
                 self.rhs[s] = min(self.rhs[s], self.g[x] + self.cost(s, x))
         if s in self.U:
             self.U.pop(s)
-
+        if s not in self.g:
+            self.g[s] = float('inf')  # 为不存在的键赋予默认值
         if self.g[s] != self.rhs[s]:
             self.U[s] = self.CalculateKey(s)
    
@@ -232,7 +255,7 @@ class DStar:
         return b_scale_point
     
 
-def main():
+def d_star_main():
     s_start = (10, 10)
     s_goal = (980, 330)
     dstar = DStar(s_start, s_goal, "euclidean") 
@@ -240,4 +263,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    d_star_main()

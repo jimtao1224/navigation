@@ -2,7 +2,7 @@
 Plot tools 2D
 @author: huiming zhou
 """
-
+import time
 import os
 import sys
 import matplotlib.pyplot as plt
@@ -129,8 +129,8 @@ class Plotting:
         
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
-        print(self.xI[0], self.xI[1],
-              self.xG[0], self.xG[1], "plot_path")
+        # print(self.xI[0], self.xI[1],
+        #       self.xG[0], self.xG[1], "plot_path")
         # plt.pause(0.01)
     
     def animate_path(self, path):
@@ -155,7 +155,7 @@ class Plotting:
 
         ani = animation.FuncAnimation(self.fig, update, frames=range(len(path)),
                                       init_func=init, blit=True, repeat=False,interval=100)
-
+        # plt.close()
     # def plot_visited_bi(self, v_fore, v_back):
     #     if self.xI in v_fore:
     #         v_fore.remove(self.xI)
