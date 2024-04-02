@@ -7,22 +7,27 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
-from Search_2D import plotting_test, env_test,autorun,test_getneighbor
-
+from Search_2D import plotting_test
+from variable_set import Environment
 class Env:
     scale_warning_shown = False
-    def __init__(self, scale='B'):
+    def __init__(self ):
         # autorun_test
-        self.autorun = autorun.Environment() 
-        scale = self.autorun.scale
-        self.robot_size = self.autorun.robot_size
+        # self.autorun = autorun.Environment() 
+
+        environment = Environment()
+        start_point = environment.start_point
+        end_point = environment.end_point
+        scale = environment.scale
+        self.start_point = start_point
+        self.end_point = end_point
+        self.robot_size = environment.robot_size
         self.scale = scale       
-        self.min_obstacle_count = self.autorun.min_obstacle_count
-        
-        self.x_range_A = self.autorun.scale_A_size[0]
-        self.y_range_A = self.autorun.scale_A_size[1]
-        self.x_range_B = self.autorun.scale_B_size[0]
-        self.y_range_B = self.autorun.scale_B_size[1]
+        self.min_obstacle_count = environment.min_obstacle_count
+        self.x_range_A = environment.scale_A_size[0]
+        self.y_range_A = environment.scale_A_size[1]
+        self.x_range_B = environment.scale_B_size[0]
+        self.y_range_B = environment.scale_B_size[1]
         
         # ~~    
         # self.x_range_A = 1000  # 尺度A的宽度

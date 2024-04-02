@@ -12,41 +12,33 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
-from Search_2D import plotting_test, env_test,autorun
+from Search_2D import plotting_test, env_test
+# from variable_set import Environment
+from env_test import Env
 # from multiprocessing import Pool, Process
 # from concurrent.futures import ProcessPoolExecutor
 # from concurrent.futures import ThreadPoolExecutor
 
 class DStar:
     def __init__(self, s_start, s_goal, heuristic_type):
-        self.Env = env_test.Env()
+        environment = Env()
+        self.Env = environment
         scale = self.Env.scale
         self.scale = scale
         print(self.scale, "dstar scale")
-        
-
         # autorun_test
-        self.s_start_auto = autorun.Environment().start_point
-        self.s_goal_auto = autorun.Environment().end_point
-        print(self.s_start_auto, self.s_goal_auto)
+        self.s_start_first = self.Env.start_point
+        self.s_goal_first = self.Env.end_point
+        print(self.s_start_first, self.s_goal_first, "s_start_first, s_goal_first")
         if scale == 'A':
-            self.s_start = self.s_start_auto
-            self.s_goal = self.s_goal_auto
+            self.s_start = self.s_start_first
+            self.s_goal = self.s_goal_first
         elif scale == 'B':
-            self.s_start = self.convert_to_B_scale(self.s_start_auto)
-            self.s_goal = self.convert_to_B_scale(self.s_goal_auto)
-        # ~~~~
-
-
-        # if scale == 'A':
-        #     self.s_start = s_start
-        #     self.s_goal = s_goal
-        # elif scale == 'B':
-        #     self.s_start = self.convert_to_B_scale(s_start)
-        #     self.s_goal = self.convert_to_B_scale(s_goal)
-        
-        print(self.s_start, self.s_goal)
-        self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,self.Env) 
+            self.s_start = self.convert_to_B_scale(self.s_start_first)
+            self.s_goal = self.convert_to_B_scale(self.s_goal_first)
+        # ~~~~        
+        print(self.s_start, self.s_goal, "s_start, s_goal")
+        self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,environment) 
           # class Env
         self.u_set = self.Env.motions  # feasible input set
         self.Env.obs = self.Env.obs
@@ -77,10 +69,11 @@ class DStar:
             return self.x,self.y
 
     def run(self):
-        # self.Plot.plot_grid("D* Lite")
-        # if self.s_goal == self.Env.obs:
-        #     print("The goal is in the obstacle")
-        #     return
+        # 子圖test
+        # ax = plt.subplot(subplot_position)
+        # ax.set_title(f"D* Lite - Scale {self.scale}")
+        # self.plotter.plot_grid("D* Lite", ax=ax)
+        # 
         self.plotter.plot_grid("D* Lite")
         print("障礙物總數:", len(self.Env.obs))
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
@@ -88,17 +81,21 @@ class DStar:
         start_time = time.time()
         print("ComputePath")
         self.ComputePath()
-        if self.scale == 'A':
+        if self.scale == 'A' or self.scale == 'B':
             print("plot_path")
             self.plotter.plot_path(self.extract_path())    
             print("animate_path")
             self.plotter.animate_path(self.extract_path())
+            # print("plot_path")
+            # self.plotter.plot_path(self.extract_path(),ax = ax)    
+            # print("animate_path")
+            # self.plotter.animate_path(self.extract_path(),ax = ax)
 
-        elif self.scale == 'B':
-            print("plot_path")
-            self.plotter.plot_path(self.extract_path())    
-            print("animate_path")
-            self.plotter.animate_path(self.extract_path())
+        # elif self.scale == 'B':
+        #     print("plot_path")
+        #     self.plotter.plot_path(self.extract_path())    
+        #     print("animate_path")
+        #     self.plotter.animate_path(self.extract_path())
         print(len(self.extract_path())-1,"total_time")
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
