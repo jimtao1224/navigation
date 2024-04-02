@@ -19,10 +19,11 @@ from Search_2D import plotting_test, env_test,autorun
 
 class DStar:
     def __init__(self, s_start, s_goal, heuristic_type):
-        scale = env_test.Env().scale
+        self.Env = env_test.Env()
+        scale = self.Env.scale
         self.scale = scale
         print(self.scale, "dstar scale")
-        self.Env = env_test.Env()
+        
 
         # autorun_test
         self.s_start_auto = autorun.Environment().start_point
@@ -249,8 +250,19 @@ class DStar:
         y_ratio = self.Env.y_range_B / self.Env.y_range_A
         # 按比例轉換A尺度點到B尺度
         b_scale_approx = (a_scale_point[0] * x_ratio, a_scale_point[1] * y_ratio)
-        b_scale_x = max(1, min(self.Env.x_range_B - 1, int(b_scale_approx[0])))
-        b_scale_y = max(1, min(self.Env.y_range_B - 1, int(b_scale_approx[1])))
+        offset_x = b_scale_approx[0] - int(b_scale_approx[0])
+        offset_y = b_scale_approx[1] - int(b_scale_approx[1])
+        if offset_x > 0.5:
+            b_scale_x = min(self.Env.x_range_B - 1, int(b_scale_approx[0]) + 1)
+        else:
+            b_scale_x = max(1, int(b_scale_approx[0]))
+
+        if offset_y > 0.5:
+            b_scale_y = min(self.Env.y_range_B - 1, int(b_scale_approx[1]) + 1)
+        else:
+            b_scale_y = max(1, int(b_scale_approx[1]))
+        # b_scale_x = max(1, min(self.Env.x_range_B - 1, int(b_scale_approx[0])))
+        # b_scale_y = max(1, min(self.Env.y_range_B - 1, int(b_scale_approx[1])))
         b_scale_point = (b_scale_x, b_scale_y)
         return b_scale_point
     

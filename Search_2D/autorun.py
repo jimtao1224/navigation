@@ -9,12 +9,16 @@ from Search_2D import plotting_test, env_test
 from test_getneighbor import d_star_main
 class Environment:
     def __init__(self):
-        start_point = (20, 10)
         scale = 'B'
         self.scale = scale
+        start_point = (2, 190)
         end_point = (980, 300)
         scale_A_size = (1000, 800)
-        scale_B_size = (500,200)
+        scale_B_size = (100,100)
+        robot_size = (1,1)
+        min_obstacle_count = 1
+        self.min_obstacle_count = min_obstacle_count
+        self.robot_size = robot_size
         self.start_point = start_point
         self.end_point = end_point
         self.scale_A_size = scale_A_size

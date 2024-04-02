@@ -10,35 +10,35 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
 from Search_2D import plotting_test, env_test,autorun,test_getneighbor
 
 class Env:
+    scale_warning_shown = False
     def __init__(self, scale='B'):
         # autorun_test
-        # self.autorun = autorun.Environment() 
-        # scale = self.autorun.scale
-        
+        self.autorun = autorun.Environment() 
+        scale = self.autorun.scale
+        self.robot_size = self.autorun.robot_size
         self.scale = scale       
-
-        # self.x_range_A = self.autorun.scale_A_size[0]
-        # self.y_range_A = self.autorun.scale_A_size[1]
-        # self.x_range_B = self.autorun.scale_B_size[0]
-        # self.y_range_B = self.autorun.scale_B_size[1]
+        self.min_obstacle_count = self.autorun.min_obstacle_count
+        
+        self.x_range_A = self.autorun.scale_A_size[0]
+        self.y_range_A = self.autorun.scale_A_size[1]
+        self.x_range_B = self.autorun.scale_B_size[0]
+        self.y_range_B = self.autorun.scale_B_size[1]
+        
         # ~~    
-        self.x_range_A = 1000  # 尺度A的宽度
-        self.y_range_A = 800  # 尺度A的高度
-        self.x_range_B = 200   # 尺度B的宽度
-        self.y_range_B = 100  # 尺度B的高度
-        obstacle_threshold = 0.01
-        self.obstacle_threshold = obstacle_threshold
+        # self.x_range_A = 1000  # 尺度A的宽度
+        # self.y_range_A = 800  # 尺度A的高度
+        # self.x_range_B = 200   # 尺度B的宽度
+        # self.y_range_B = 100  # 尺度B的高度 
+        
         self.motions = [(-1, 0), (-1, 1), (0, 1), (1, 1),
                         (1, 0), (1, -1), (0, -1), (-1, -1)]
         self.obs = self.obs_map()
         self.obstacle_coverage = self.get_obstacle_coverage()
         self.map_size = self.get_map_size()
         self.obs_total = len(self.obs)
+        
     def update_obs(self, obs):
-        # if self.scale == 'A' :
         self.obs = obs
-        # elif self.scale == 'B':
-        #     self.obs 
     def obs_map(self):
         """
         Initialize obstacles' positions
@@ -97,21 +97,20 @@ class Env:
         x_B = self.x_range_B
         y_B = self.y_range_B
         obs_B = set()
-        # x_ratio = self.x_range_B / self.x_range_A
-        # y_ratio = self.y_range_B / self.y_range_A
         x_ratio = self.x_range_A / self.x_range_B
         y_ratio = self.y_range_A / self.y_range_B
-        min_obstacle_count = 10  # 例如，我们只关注至少包含1个障碍物的B节点
-
-# 遍历尺度B的每个节点
+        if int(x_ratio)*int(y_ratio) < int(self.robot_size[0]*self.robot_size[1]) and not Env.scale_warning_shown:
+            print("尺度錯誤,以機器人尺寸為基準,重新設定尺度")
+            Env.scale_warning_shown = True
+            self.x_range_B = int(self.x_range_A/int(self.robot_size[0]))
+            self.y_range_B = int(self.y_range_A/int(self.robot_size[1]))
+            
+            x_B = self.x_range_B 
+            y_B = self.y_range_B
+            x_ratio = self.x_range_A / self.x_range_B
+            y_ratio = self.y_range_A / self.y_range_B
         for y_B in range(self.y_range_B):
             for x_B in range(self.x_range_B):
-                # 计算尺度A中对应的区域
-
-                # is_on_boundary = (x_B == 0 or x_B == self.x_range_B  or y_B == 0 or y_B == self.y_range_B )
-                # print(f"B节点({x_B}, {y_B}) 对应的A节点区域: ({x_A_start}, {y_A_start}) - ({x_A_end}, {y_A_end})")
-                # 检查并统计区域内的障碍物数量
-                # print(f"障碍物坐标: {x_B}, {y_B}")
                 if (x_B == 0 or x_B == self.x_range_B -1 or y_B == 0 or y_B == self.y_range_B -1):
                     # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: 0")
                     obs_B.add((x_B, y_B))
@@ -123,7 +122,7 @@ class Env:
                     obstacle_count = sum((x_A, y_A) in obs_A
                                     for y_A in range(int(y_A_start), int(y_A_end))
                                     for x_A in range(int(x_A_start), int(x_A_end)))
-                    if obstacle_count >= min_obstacle_count:
+                    if obstacle_count >= self.min_obstacle_count:
                         # with open('output4.txt', 'a') as file:
                         #     # 使用str.format()来格式化字符串，将x_B, y_B, obstacle_count组合成一行，以逗号分隔
                         #     line = "{},{},{}\n".format(x_B, y_B, obstacle_count)
@@ -131,38 +130,7 @@ class Env:
 
                         # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: {obstacle_count}")
                         obs_B.add((x_B, y_B))
-
-                # 只处理或输出满足阈值条件的B节点信息
-                
-                    # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: {obstacle_count}")
-        # for y in range(self.y_range_B):
-        #     for x in range(self.x_range_B):
-                # 对于B尺度的每个节点，检查对应的A尺度10x10区块中是否存在障碍物 
-                # if any((x * 10 + dx, y * 10 + dy) in obs_A for dy in range(10) for dx in range(10)):
-                #     obs_B.add((x, y))
-                # if any((x * x_ratio + dx, y * y_ratio + dy) in obs_A for dy in range(int(self.y_range_B)) 
-                #        for dx in range(int(self.x_range_B))):
-                #     obs_B.add((x, y))
-                # obstacle_count = sum((x * 10 + dx, y * 10 + dy) in obs_A for dy 
-                #                      in range(10) for dx in range(10))
-                # if obstacle_count / x_ratio*y_ratio >= self.obstacle_threshold:
-                #     obs_B.add((x, y))
-
-
-                # if any((x * x_ratio + dx * x_ratio / 10, y * y_ratio + dy * y_ratio / 10) in obs_A
-                #     for dy in range(10) for dx in range(10)):
-                #     obs_B.add((x, y))
-                # if any((x + dx / 10 * x_ratio, y + dy / 10 * y_ratio) in obs_A 
-                #     for dy in range(10) for dx in range(10)):
-                #     obs_B.add((x, y))
-
-                # obstacle_count = sum((x * x_ratio + dx, y * y_ratio + dy) in obs_A
-                #      for dy in range(int(y_ratio)) for dx in range(int(x_ratio)))
-                # if (obstacle_count / (x_ratio * y_ratio)) >= self.obstacle_threshold:
-                #     obs_B.add((x, y))
-
     
-
         if self.scale == 'A':
             obs = obs_A
         elif self.scale == 'B':
@@ -191,40 +159,17 @@ class Env:
             return self.x_range_A, self.y_range_A
         elif self.scale == 'B':
             return self.x_range_B, self.y_range_B
-    # def show(self):
-    #     print("障礙物總數:", self.obs_total)
-    #     print("障礙物覆蓋率:",self.obstacle_coverage)
-    #     print("地圖大小:", self.map_size)
-    
 
-    # def avg_obstacle_distance(self):
-    #     """
-    #     Calculate the average Euclidean distance between each pair of obstacles.
-    #     This provides an indication of how spread out or clustered the obstacles are.
-    #     :return: average distance as a float
-    #     """
-    #     if not self.obs:
-    #         return 0
+# env = Env()  # 使用尺度A初始化環境
 
-    #     total_distance = 0
-    #     count = 0
-    #     obstacles = list(self.obs)
-    #     for i in range(len(obstacles)):
-    #         for j in range(i + 1, len(obstacles)):
-    #             dist = math.sqrt((obstacles[i][0] - obstacles[j][0])**2 + (obstacles[i][1] - obstacles[j][1])**2)
-    #             total_distance += dist
-    #             count += 1
 
-    #     if count > 0:
-    #         return total_distance / count
-    #     else:
-        #         return 0
-env = Env()  # 使用尺度A初始化環境
-# data_set = [env.obstacle_coverage,env.get_map_size()]
-print("障礙物總數:", len(env.obs))
-print("障礙物覆蓋率:",env.obstacle_coverage)
+# if  not Env.map_info:
+#     print("障礙物總數:", len(env.obs))
+#     print("障礙物覆蓋率:",env.obstacle_coverage)
+#     print("地圖大小:", env.get_map_size())
+#     Env.map_info = True   
 # with open("obstacle_coverage.csv", "w", newline="") as csvfile:
 #   writer = csv.writer(csvfile)
 #   writer.writerow(data_set)
-print("地圖大小:", env.get_map_size())    
+ 
 # print("障礙物到最近鄰居的平均距離:", env.avg_obstacle_distance())
