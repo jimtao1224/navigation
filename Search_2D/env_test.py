@@ -7,15 +7,14 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
-from Search_2D import plotting_test
+# from Search_2D import plotting_test
 from variable_set import Environment
+# from Search_2D import run
+# from run import data_set
 class Env:
     scale_warning_shown = False
-    def __init__(self ):
-        # autorun_test
-        # self.autorun = autorun.Environment() 
-
-        environment = Environment()
+    def __init__(self,scale):
+        environment = Environment(scale=scale)
         start_point = environment.start_point
         end_point = environment.end_point
         scale = environment.scale

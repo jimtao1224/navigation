@@ -13,16 +13,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
 from Search_2D import plotting_test, env_test
-# from variable_set import Environment
+from variable_set import Environment
 from env_test import Env
-# from multiprocessing import Pool, Process
-# from concurrent.futures import ProcessPoolExecutor
-# from concurrent.futures import ThreadPoolExecutor
-
 class DStar:
-    def __init__(self, s_start, s_goal, heuristic_type):
-        environment = Env()
+    def __init__(self, heuristic_type,scale):
+        environment = Env(scale=scale)
         self.Env = environment
+        print("Dstar scale:", self.Env.scale)
         scale = self.Env.scale
         self.scale = scale
         print(self.scale, "dstar scale")
@@ -52,10 +49,8 @@ class DStar:
                 self.g[(i, j)] = float("inf")
         self.rhs[self.s_goal] = 0.0
         self.U[self.s_goal] = self.CalculateKey(self.s_goal)
-        # print(self.U)
         self.visited = set()
-        self.count=0
-        # self.fig= plt.figure()
+
     
     def set_scale(self,scale):
         self.scale = scale
@@ -69,11 +64,6 @@ class DStar:
             return self.x,self.y
 
     def run(self):
-        # 子圖test
-        # ax = plt.subplot(subplot_position)
-        # ax.set_title(f"D* Lite - Scale {self.scale}")
-        # self.plotter.plot_grid("D* Lite", ax=ax)
-        # 
         self.plotter.plot_grid("D* Lite")
         print("障礙物總數:", len(self.Env.obs))
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
@@ -86,21 +76,11 @@ class DStar:
             self.plotter.plot_path(self.extract_path())    
             print("animate_path")
             self.plotter.animate_path(self.extract_path())
-            # print("plot_path")
-            # self.plotter.plot_path(self.extract_path(),ax = ax)    
-            # print("animate_path")
-            # self.plotter.animate_path(self.extract_path(),ax = ax)
-
-        # elif self.scale == 'B':
-        #     print("plot_path")
-        #     self.plotter.plot_path(self.extract_path())    
-        #     print("animate_path")
-        #     self.plotter.animate_path(self.extract_path())
         print(len(self.extract_path())-1,"total_time")
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
-        plt.show()
-        plt.close()
+        # plt.show()
+        # plt.close()
 
         
 
@@ -194,16 +174,8 @@ class DStar:
     def get_neighbor(self, s):
         nei_list = set()
         distance = self.calculate_distance(s, self.s_start)
-        # if distance <= 2: 
-        #     self.step = 1  
-        #     (distance)
-        # else  :
-        #     self.step = 2 
-        # with open("output3.txt", "a") as file: 
-        #     file.write(f"{s},{self.U}\n")
         for u in self.u_set:
-            s_next = tuple([s[i] + u[i]   for i in range(2)])    
-            # if 0 <= s_next[0] < 100 and 0 <= s_next[1] < 60 and s_next not in self.Env.obs:    
+            s_next = tuple([s[i] + u[i]   for i in range(2)])       
             if s_next not in self.Env.obs:
                 nei_list.add(s_next) 
         return nei_list
@@ -258,18 +230,26 @@ class DStar:
             b_scale_y = min(self.Env.y_range_B - 1, int(b_scale_approx[1]) + 1)
         else:
             b_scale_y = max(1, int(b_scale_approx[1]))
-        # b_scale_x = max(1, min(self.Env.x_range_B - 1, int(b_scale_approx[0])))
-        # b_scale_y = max(1, min(self.Env.y_range_B - 1, int(b_scale_approx[1])))
         b_scale_point = (b_scale_x, b_scale_y)
         return b_scale_point
     
 
 def d_star_main():
-    s_start = (10, 10)
-    s_goal = (980, 330)
-    dstar = DStar(s_start, s_goal, "euclidean") 
+    # dstar = DStar("euclidean",scale='B') 
+    # dstar.run()
+    # plt.show(block=False)  # 显示当前图形
+    # plt.pause(5)
+    # plt.close()
+    # dstar = DStar("euclidean",scale='A') 
+    # dstar.run()
+    # plt.show()
+    # 分開顯示
+    dstar = DStar("euclidean",scale='B') 
     dstar.run()
-
-
+    plt.show(block=False)  # 显示当前图形
+    dstar = DStar("euclidean",scale='A') 
+    dstar.run()
+    plt.show()
+    # 最後同步顯示
 if __name__ == '__main__':
     d_star_main()
