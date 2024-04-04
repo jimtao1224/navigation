@@ -22,23 +22,23 @@ class DStar:
         print("Dstar scale:", self.Env.scale)
         scale = self.Env.scale
         self.scale = scale
-        print(self.scale, "dstar scale")
-        # autorun_test
+        self.u_set = self.Env.motions  # feasible input set
+        self.Env.obs = self.Env.obs
         self.s_start_first = self.Env.start_point
         self.s_goal_first = self.Env.end_point
-        print(self.s_start_first, self.s_goal_first, "s_start_first, s_goal_first")
         if scale == 'A':
             self.s_start = self.s_start_first
             self.s_goal = self.s_goal_first
         elif scale == 'B':
             self.s_start = self.convert_to_B_scale(self.s_start_first)
             self.s_goal = self.convert_to_B_scale(self.s_goal_first)
-        # ~~~~        
-        print(self.s_start, self.s_goal, "s_start, s_goal")
+            if (self.s_start[0] >= self.Env.x_range_B -1 or self.s_start[1] >= self.Env.y_range_B -1 or
+    self.s_goal[0] >= self.Env.x_range_B -1 or self.s_goal[1] >= self.Env.y_range_B -1):
+                print("座標轉換錯誤,請調整尺度或是座標")   
+                exit()
+        self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.s_goal)
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,environment) 
-          # class Env
-        self.u_set = self.Env.motions  # feasible input set
-        self.Env.obs = self.Env.obs
+
         self.heuristic_type = heuristic_type
         self.x, self.y = self.set_scale(scale)
         self.g, self.rhs, self.U = {}, {}, {}
@@ -64,21 +64,27 @@ class DStar:
             return self.x,self.y
 
     def run(self):
-        self.plotter.plot_grid("D* Lite")
+        start_time = time.time()
+        if self.scale == 'A':
+            self.plotter.plot_grid("D* Lite_A")
+        elif self.scale == 'B':
+            self.plotter.plot_grid("D* Lite_B")
         print("障礙物總數:", len(self.Env.obs))
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
         print("地圖大小:", self.Env.get_map_size())
-        start_time = time.time()
-        print("ComputePath")
+        print(self.s_start_first, self.s_goal_first, "s_start_first, s_goal_first")
+        print(self.s_start, self.s_goal, "s_start, s_goal")
+        # print("ComputePath")
         self.ComputePath()
-        if self.scale == 'A' or self.scale == 'B':
-            print("plot_path")
-            self.plotter.plot_path(self.extract_path())    
-            print("animate_path")
-            self.plotter.animate_path(self.extract_path())
+            # print("plot_path")
+        self.plotter.plot_path(self.extract_path())    
+        # print("animate_path")
+        self.plotter.animate_path(self.extract_path())
         print(len(self.extract_path())-1,"total_time")
         end_time = time.time()  
         print("Map generation time:", end_time - start_time, "seconds") 
+        if self.scale == 'B':
+            print(self.converted_target_point, "conversion error")
         # plt.show()
         # plt.close()
 
@@ -89,8 +95,7 @@ class DStar:
             s, v = self.TopKey()  
             if v >=self.CalculateKey(self.s_start) and \
                     self.rhs[self.s_start] == self.g[self.s_start]:
-                break
-            # print(self.U)    
+                break  
             k_old = v
             self.U.pop(s)
             self.visited.add(s)
@@ -231,8 +236,16 @@ class DStar:
         else:
             b_scale_y = max(1, int(b_scale_approx[1]))
         b_scale_point = (b_scale_x, b_scale_y)
+        # if b_scale_point >= (self.Env.x_range_B, self.Env.y_range_B):
+        #     print("尺度轉換錯誤")
         return b_scale_point
-    
+    def calculate_target_displacement(self,original_target_point, converted_target_point):
+    # 计算原始目标点和转换后目标点之间的欧几里得距离
+        x_ratio = self.Env.x_range_B / self.Env.x_range_A
+        y_ratio = self.Env.y_range_B / self.Env.y_range_A
+        original_target_point = (original_target_point[0] * x_ratio, original_target_point[1] * y_ratio)
+        displacement = ((converted_target_point[0] - original_target_point[0])**2 + (converted_target_point[1] - original_target_point[1])**2)**0.5
+        return displacement
 
 def d_star_main():
     # dstar = DStar("euclidean",scale='B') 
@@ -246,7 +259,7 @@ def d_star_main():
     # 分開顯示
     dstar = DStar("euclidean",scale='B') 
     dstar.run()
-    plt.show(block=False)  # 显示当前图形
+    plt.show(block=False)  
     dstar = DStar("euclidean",scale='A') 
     dstar.run()
     plt.show()

@@ -89,15 +89,9 @@ class Env:
         for i in range(700, 900, 20):  # Increase step size
             for j in range(500, 700, 20):  # Increase step size
                 obs_A.add((i, j))
-        # for i in range(20, 40):
-        #     obs_A.add((i, 30))
-        # for i in range(30):
-        #     obs_A.add((40, i))
-        # for i in range(30, 60):
-        #     obs_A.add((60, i))
-        # for i in range(32):
-        #     obs_A.add((80, i))
-         
+
+
+
         x_B = self.x_range_B
         y_B = self.y_range_B
         obs_B = set()
@@ -134,11 +128,14 @@ class Env:
 
                         # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: {obstacle_count}")
                         obs_B.add((x_B, y_B))
-    
+        if self.start_point in obs_A or self.end_point in obs_A:
+            print("座標點與障礙物重疊。")
+            exit()
         if self.scale == 'A':
             obs = obs_A
         elif self.scale == 'B':
             obs = obs_B
+
         return obs
 
     def get_obstacle_coverage(self):
