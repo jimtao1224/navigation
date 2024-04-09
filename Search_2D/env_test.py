@@ -110,7 +110,6 @@ class Env:
         for y_B in range(self.y_range_B):
             for x_B in range(self.x_range_B):
                 if (x_B == 0 or x_B == self.x_range_B -1 or y_B == 0 or y_B == self.y_range_B -1):
-                    # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: 0")
                     obs_B.add((x_B, y_B))
                 else:                
                     x_A_start = x_B * x_ratio
@@ -121,16 +120,7 @@ class Env:
                                     for y_A in range(int(y_A_start), int(y_A_end))
                                     for x_A in range(int(x_A_start), int(x_A_end)))
                     if obstacle_count >= self.min_obstacle_count:
-                        # with open('output4.txt', 'a') as file:
-                        #     # 使用str.format()来格式化字符串，将x_B, y_B, obstacle_count组合成一行，以逗号分隔
-                        #     line = "{},{},{}\n".format(x_B, y_B, obstacle_count)
-                        #     file.write(line)
-
-                        # print(f"B节点({x_B}, {y_B}) 包含的A节点障碍物数量: {obstacle_count}")
                         obs_B.add((x_B, y_B))
-        if self.start_point in obs_A or self.end_point in obs_A:
-            print("座標點與障礙物重疊。")
-            exit()
         if self.scale == 'A':
             obs = obs_A
         elif self.scale == 'B':
@@ -149,7 +139,6 @@ class Env:
             total_cells = self.x_range_B * self.y_range_B
         obstacle_coverage = len(self.obs) / total_cells
         return obstacle_coverage
-        # return len(self.obs) / total_cells
 
     def get_map_size(self):
         """
@@ -161,16 +150,4 @@ class Env:
         elif self.scale == 'B':
             return self.x_range_B, self.y_range_B
 
-# env = Env()  # 使用尺度A初始化環境
 
-
-# if  not Env.map_info:
-#     print("障礙物總數:", len(env.obs))
-#     print("障礙物覆蓋率:",env.obstacle_coverage)
-#     print("地圖大小:", env.get_map_size())
-#     Env.map_info = True   
-# with open("obstacle_coverage.csv", "w", newline="") as csvfile:
-#   writer = csv.writer(csvfile)
-#   writer.writerow(data_set)
- 
-# print("障礙物到最近鄰居的平均距離:", env.avg_obstacle_distance())
