@@ -9,6 +9,7 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation    
 import time
+import pandas as pd
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
@@ -73,19 +74,20 @@ class DStar:
         print("障礙物總數:", len(self.Env.obs))
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
         print("地圖大小:", self.Env.get_map_size())
-        print(self.s_start_first, self.s_goal_first, "原A尺度出發點與目標點座標")
-        print(self.s_start, self.s_goal, "檢驗後B尺度目標點與出發點座標")
+        print( "原A尺度出發點與目標點座標",self.s_start_first, self.s_goal_first)
+        print("檢驗後B尺度目標點與出發點座標",self.s_start, self.s_goal)
         # print("ComputePath")
         self.ComputePath()
         # print("plot_path")
         self.plotter.plot_path(self.extract_path())    
         # print("animate_path")
         self.plotter.animate_path(self.extract_path())
-        print(len(self.extract_path())-1,"total_time")
+        print("路徑長度",len(self.extract_path())-1)
         end_time = time.time()  
-        print("Map generation time:", end_time - start_time, "seconds") 
+        print("系統運行時間:", end_time - start_time, "seconds") 
         if self.scale == 'B':
-            print(self.converted_target_point, "conversion error")
+            print("目標點誤差值",self.converted_target_point)
+        self.info_output(start_time,end_time)
         # plt.show()
         # plt.close()
 
@@ -264,6 +266,39 @@ class DStar:
                 print(f"{point_name}已移至新位置：{new_coord}")
                 return new_coord
             return coord  # 如果没有重叠，就返回原坐标
+    def info_output(self,start_time,end_time):
+        new_data = {
+        "障礙物總數": [len(self.Env.obs)],
+        "障礙物覆蓋率": [self.Env.obstacle_coverage],
+        "尺度A地圖大小": [self.Env.get_map_size()],  # 调用函数获取地图大小
+        "尺度B地圖大小": [self.Env.get_map_size()],
+        "原A尺度出發點座標": [str(self.s_start_first)],  # 將座標轉換成字符串
+        "原A尺度目標點座標": [str(self.s_goal_first)],
+        "檢驗後B尺度出發點座標": [str(self.s_start)],
+        "檢驗後B尺度目標點座標": [str(self.s_goal)],
+        "總時間": [f"{len(self.extract_path())-1} "],  
+        "地圖生成時間(秒)": [f"{end_time - start_time} 秒"]  # 格式化浮點數，保留兩位小數
+    }
+
+        # 調整列的顯示順序
+        columns_order = ["尺度B地圖大小","障礙物總數", "障礙物覆蓋率", "原A尺度出發點座標", "原A尺度目標點座標", "檢驗後B尺度出發點座標", "檢驗後B尺度目標點座標", "總時間", "地圖生成時間(秒)"]
+        
+        # 將字典轉換成DataFrame
+        new_df = pd.DataFrame(new_data)
+        file_path = 'output.xlsx'
+        try:
+
+            existing_df = pd.read_excel(file_path)
+            # 將新資料附加到現有資料的末尾
+            updated_df = pd.concat([existing_df, new_df], ignore_index=True)
+        except FileNotFoundError:
+
+            updated_df = new_df
+        # 重新排序列
+        updated_df.to_excel(file_path, index=False, columns=columns_order)
+        # df = df[columns_order]
+
+
 def d_star_main():
     # dstar = DStar("euclidean",scale='B') 
     # dstar.run()
