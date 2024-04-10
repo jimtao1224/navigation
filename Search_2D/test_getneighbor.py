@@ -20,25 +20,30 @@ class DStar:
     def __init__(self, heuristic_type,scale):
         environment = Env(scale=scale)
         self.Env = environment
-        print("Dstar scale:", self.Env.scale)
+        print("D*lite scale:", self.Env.scale)
         scale = self.Env.scale
         self.scale = scale
         self.u_set = self.Env.motions  # feasible input set
         self.Env.obs = self.Env.obs
-        self.s_start_first = self.Env.start_point
-        self.s_goal_first = self.Env.end_point
-        if scale == 'A':
-            self.s_start = self.s_start_first
-            self.s_goal = self.s_goal_first
-        elif scale == 'B':
-            self.s_start = self.convert_to_B_scale(self.s_start_first)
-            self.s_goal = self.convert_to_B_scale(self.s_goal_first)
-            print(self.s_start, self.s_goal, "B尺度各點座標,尚未檢驗")
-            self.s_start = self.adjust_coordinates(self.s_start, self.Env.x_range_B, self.Env.y_range_B, "出發點")
-            self.s_goal = self.adjust_coordinates(self.s_goal, self.Env.x_range_B, self.Env.y_range_B, "目標點")
-            self.s_start = self.adjust_for_obstacles(self.s_start, self.Env.obs, "出發點")
-            self.s_goal = self.adjust_for_obstacles(self.s_goal, self.Env.obs, "目標點")
-        self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.s_goal)
+        self.s_start = self.Env.start_point
+        self.s_goal = self.Env.end_point
+        self.s_start_first = self.Env.s_start_first
+        self.s_goal_first = self.Env.s_goal_first
+        self.converted_target_point =self.Env.converted_target_point
+        # if scale == 'A':
+        #     self.s_start = self.s_start_first
+        #     self.s_goal = self.s_goal_first
+        #     self.s_start = self.adjust_for_obstacles(self.s_start, self.Env.obs, "出發點")
+        #     self.s_goal = self.adjust_for_obstacles(self.s_goal, self.Env.obs, "目標點")
+        # elif scale == 'B':
+        #     self.s_start = self.convert_to_B_scale(self.s_start_first)
+        #     self.s_goal = self.convert_to_B_scale(self.s_goal_first)
+        #     print(self.s_start, self.s_goal, "B尺度各點座標,尚未檢驗")
+        #     self.s_start = self.adjust_coordinates(self.s_start, self.Env.x_range_B, self.Env.y_range_B, "出發點")
+        #     self.s_goal = self.adjust_coordinates(self.s_goal, self.Env.x_range_B, self.Env.y_range_B, "目標點")
+        #     self.s_start = self.adjust_for_obstacles(self.s_start, self.Env.obs, "出發點")
+        #     self.s_goal = self.adjust_for_obstacles(self.s_goal, self.Env.obs, "目標點")
+        # self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.s_goal)
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,environment) 
 
         self.heuristic_type = heuristic_type
@@ -75,7 +80,8 @@ class DStar:
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
         print("地圖大小:", self.Env.get_map_size())
         print( "原A尺度出發點與目標點座標",self.s_start_first, self.s_goal_first)
-        print("檢驗後B尺度目標點與出發點座標",self.s_start, self.s_goal)
+        if self.scale == 'B':
+            print("檢驗後B尺度目標點與出發點座標",self.s_start, self.s_goal)
         # print("ComputePath")
         self.ComputePath()
         # print("plot_path")
@@ -84,9 +90,10 @@ class DStar:
         self.plotter.animate_path(self.extract_path())
         print("路徑長度",len(self.extract_path())-1)
         end_time = time.time()  
-        print("系統運行時間:", end_time - start_time, "seconds") 
+        
         if self.scale == 'B':
             print("目標點誤差值",self.converted_target_point)
+        print("系統運行時間:", end_time - start_time, "seconds") 
         self.info_output(start_time,end_time)
         # plt.show()
         # plt.close()
@@ -221,51 +228,51 @@ class DStar:
 
         for x in visited:
             plt.plot(x[0], x[1], marker='s', color=color[self.count])
-    def convert_to_B_scale(self, a_scale_point):
-        # 計算A尺度到B尺度的轉換比例
-        x_ratio = self.Env.x_range_B / self.Env.x_range_A
-        y_ratio = self.Env.y_range_B / self.Env.y_range_A
-        # 按比例轉換A尺度點到B尺度
-        b_scale_approx = (a_scale_point[0] * x_ratio, a_scale_point[1] * y_ratio)
-        offset_x = b_scale_approx[0] - int(b_scale_approx[0])
-        offset_y = b_scale_approx[1] - int(b_scale_approx[1])
-        if offset_x > 0.5:
-            b_scale_x = min(self.Env.x_range_B - 1, int(b_scale_approx[0]) + 1)
-        else:
-            b_scale_x = max(1, int(b_scale_approx[0]))
+    # def convert_to_B_scale(self, a_scale_point):
+    #     # 計算A尺度到B尺度的轉換比例
+    #     x_ratio = self.Env.x_range_B / self.Env.x_range_A
+    #     y_ratio = self.Env.y_range_B / self.Env.y_range_A
+    #     # 按比例轉換A尺度點到B尺度
+    #     b_scale_approx = (a_scale_point[0] * x_ratio, a_scale_point[1] * y_ratio)
+    #     offset_x = b_scale_approx[0] - int(b_scale_approx[0])
+    #     offset_y = b_scale_approx[1] - int(b_scale_approx[1])
+    #     if offset_x > 0.5:
+    #         b_scale_x = min(self.Env.x_range_B - 1, int(b_scale_approx[0]) + 1)
+    #     else:
+    #         b_scale_x = max(1, int(b_scale_approx[0]))
 
-        if offset_y > 0.5:
-            b_scale_y = min(self.Env.y_range_B - 1, int(b_scale_approx[1]) + 1)
-        else:
-            b_scale_y = max(1, int(b_scale_approx[1]))
-        b_scale_point = (b_scale_x, b_scale_y)
-        return b_scale_point
-    def calculate_target_displacement(self,original_target_point, converted_target_point):
-    # 计算原始目标点和转换后目标点之间的欧几里得距离
-        x_ratio = self.Env.x_range_B / self.Env.x_range_A
-        y_ratio = self.Env.y_range_B / self.Env.y_range_A
-        original_target_point = (original_target_point[0] * x_ratio, original_target_point[1] * y_ratio)
-        displacement = ((converted_target_point[0] - original_target_point[0])**2 + (converted_target_point[1] - original_target_point[1])**2)**0.5
-        return displacement
-    def adjust_coordinates(self,coord, x_range, y_range,point_name):
-            x, y = coord
-            if x >= x_range - 1:
-                print(f"座標轉換後{point_name}x軸位置錯誤,調整座標")
-                x = x_range - 2  # 减少一个单位而不是减到-1
-            if y >= y_range - 1:
-                print(f"座標轉換後{point_name}y軸位置錯誤,調整座標")
-                y = y_range - 2
-            return x, y
-    def adjust_for_obstacles(self,coord, obs, point_name):
-            if coord in obs:
-                print(f"{point_name}與障礙物重疊，正在尋找新的位置...")
-                new_coord = (coord[0] + 1, coord[1] + 1)
-                # 检查新位置是否仍然重叠，如果是，则再次调整（在实际应用中，可能需要更复杂的处理方式）
-                while new_coord in obs:
-                    new_coord = (new_coord[0] + 1, new_coord[1] + 1)
-                print(f"{point_name}已移至新位置：{new_coord}")
-                return new_coord
-            return coord  # 如果没有重叠，就返回原坐标
+    #     if offset_y > 0.5:
+    #         b_scale_y = min(self.Env.y_range_B - 1, int(b_scale_approx[1]) + 1)
+    #     else:
+    #         b_scale_y = max(1, int(b_scale_approx[1]))
+    #     b_scale_point = (b_scale_x, b_scale_y)
+    #     return b_scale_point
+    # def calculate_target_displacement(self,original_target_point, converted_target_point):
+    # # 计算原始目标点和转换后目标点之间的欧几里得距离
+    #     x_ratio = self.Env.x_range_B / self.Env.x_range_A
+    #     y_ratio = self.Env.y_range_B / self.Env.y_range_A
+    #     original_target_point = (original_target_point[0] * x_ratio, original_target_point[1] * y_ratio)
+    #     displacement = ((converted_target_point[0] - original_target_point[0])**2 + (converted_target_point[1] - original_target_point[1])**2)**0.5
+    #     return displacement
+    # def adjust_coordinates(self,coord, x_range, y_range,point_name):
+    #         x, y = coord
+    #         if x >= x_range - 1:
+    #             print(f"座標轉換後{point_name}x軸位置錯誤,調整座標")
+    #             x = x_range - 2  # 减少一个单位而不是减到-1
+    #         if y >= y_range - 1:
+    #             print(f"座標轉換後{point_name}y軸位置錯誤,調整座標")
+    #             y = y_range - 2
+    #         return x, y
+    # def adjust_for_obstacles(self,coord, obs, point_name):
+    #         if coord in obs:
+    #             print(f"{point_name}與障礙物重疊，正在尋找新的位置...")
+    #             new_coord = (coord[0] + 1, coord[1] + 1)
+    #             # 检查新位置是否仍然重叠，如果是，则再次调整（在实际应用中，可能需要更复杂的处理方式）
+    #             while new_coord in obs:
+    #                 new_coord = (new_coord[0] + 1, new_coord[1] + 1)
+    #             print(f"{point_name}已移至新位置：{new_coord}")
+    #             return new_coord
+    #         return coord  # 如果没有重叠，就返回原坐标
     def info_output(self,start_time,end_time):
         new_data = {
         "障礙物總數": [len(self.Env.obs)],
@@ -311,9 +318,9 @@ def d_star_main():
     # 分開顯示
     dstar = DStar("euclidean",scale='B') 
     dstar.run()
-    # plt.show(block=False)  
-    # dstar = DStar("euclidean",scale='A') 
-    # dstar.run()
+    plt.show(block=False)  
+    dstar = DStar("euclidean",scale='A') 
+    dstar.run()
     plt.show()
     # 最後同步顯示
 if __name__ == '__main__':

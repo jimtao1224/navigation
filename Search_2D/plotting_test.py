@@ -39,11 +39,11 @@ class Plotting:
             self.y = self.Env.y_range_B
             return self.x,self.y
         
-    # def animation(self, path, visited, name):
-    #     self.plot_grid(name)
-    #     # self.plot_visited(visited)
-    #     # self.plot_path(path)
-    #     plt.show()
+    def animation(self, path, visited, name):
+        self.plot_grid(name)
+        # self.plot_visited(visited)
+        self.plot_path(path)
+        # plt.show()
 
     # def animation_lrta(self, path, visited, name):
     #     self.plot_grid(name)
@@ -94,33 +94,33 @@ class Plotting:
         plt.title(name)
         plt.axis("equal")
 
-    # def plot_visited(self, visited, cl='gray'):
-    #     if self.xI in visited:
-    #         visited.remove(self.xI)
+    def plot_visited(self, visited, cl='gray'):
+        if self.xI in visited:
+            visited.remove(self.xI)
 
-    #     if self.xG in visited:
-    #         visited.remove(self.xG)
+        if self.xG in visited:
+            visited.remove(self.xG)
 
-    #     count = 0
+        count = 0
 
-    #     for x in visited:
-    #         count += 1
-    #         plt.plot(x[0], x[1], color=cl, marker='o')
-    #         plt.gcf().canvas.mpl_connect('key_release_event',
-    #                                      lambda event: [exit(0) if event.key == 'escape' else None])
+        for x in visited:
+            count += 1
+            plt.plot(x[0], x[1], color=cl, marker='o')
+            plt.gcf().canvas.mpl_connect('key_release_event',
+                                         lambda event: [exit(0) if event.key == 'escape' else None])
 
-    #         if count < len(visited) / 3:
-    #             length = 20
-    #         elif count < len(visited) * 2 / 3:
-    #             length = 30
-    #         else:
-    #             length = 40
-    #         #
-    #         # length = 15
+            if count < len(visited) / 3:
+                length = 20
+            elif count < len(visited) * 2 / 3:
+                length = 30
+            else:
+                length = 40
+            #
+            # length = 15
 
-    #         if count % length == 0:
-    #             plt.pause(0.001)
-    #     plt.pause(0.01)
+            if count % length == 0:
+                plt.pause(0.001)
+        plt.pause(0.01)
 
     def plot_path(self, path, cl='r'):
         path_x = [path[i][0] for i in range(len(path))]
