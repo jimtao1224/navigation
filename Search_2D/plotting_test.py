@@ -43,6 +43,7 @@ class Plotting:
         self.plot_grid(name)
         # self.plot_visited(visited)
         self.plot_path(path)
+        # self.animate_path(path)
         # plt.show()
 
     # def animation_lrta(self, path, visited, name):

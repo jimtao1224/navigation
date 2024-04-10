@@ -33,17 +33,17 @@ class AStar:
         self.scale = scale
         self.u_set = self.Env.motions  # feasible input set
         self.obs = self.Env.obs
-        self.s_start_first = self.Env.start_point
-        self.s_goal_first = self.Env.end_point
-        if scale == 'A':
-            self.s_start = self.s_start_first
-            self.s_goal = self.s_goal_first
+        self.s_start_first = self.Env.s_start_first
+        self.s_goal_first = self.Env.s_goal_first
+        self.s_start = self.Env.start_point
+        self.s_goal = self.Env.end_point
+
         # self.s_start = s_start
         # self.s_goal = s_goal
         # self.Env = env.Env()  # class Env
         # self.u_set = self.Env.motions  # feasible input set
         # self.obs = self.Env.obs  # position of obstacles
-
+        self.converted_target_point =self.Env.converted_target_point
         self.OPEN = []  # priority queue / OPEN set
         self.CLOSED = []  # CLOSED set / VISITED order
         self.PARENT = dict()  # recorded parent
@@ -224,20 +224,28 @@ class AStar:
             return math.hypot(goal[0] - s[0], goal[1] - s[1])
 
 
-def main():
+def main(scale):
     start_time = time.time()
     # s_start = (5, 5)
     # s_goal = (45, 25)
-    astar = AStar("euclidean",scale='A')
-    
+    astar = AStar("euclidean",scale=scale)
+    print("障礙物總數:", len(astar.Env.obs))
+    print("障礙物覆蓋率:",astar.Env.obstacle_coverage)
+    print("地圖大小:", astar.Env.get_map_size())
+    print( "原A尺度出發點與目標點座標",astar.s_start_first, astar.s_goal_first)
+    if astar.scale == 'B':
+        print("檢驗後B尺度目標點與出發點座標",astar.s_start, astar.s_goal)
     s_start = astar.s_start
     s_goal = astar.s_goal
     environment=astar.Env
     plot = plotting_test.Plotting(s_start,s_goal,environment)
     path, visited = astar.searching()
+    print("路徑長度",len(path)-1)
     # plot.animate_path(path) 
     plot.animation(path, visited, "A*")  # animation
-    end_time = time.time()  
+    end_time = time.time()
+
+    print("目標點誤差值",astar.converted_target_point)  
     print("系統運行時間:", end_time - start_time, "seconds") 
     plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
@@ -245,4 +253,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(scale='A')
+    main(scale='B')

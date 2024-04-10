@@ -89,12 +89,10 @@ class DStar:
         # print("animate_path")
         self.plotter.animate_path(self.extract_path())
         print("路徑長度",len(self.extract_path())-1)
-        end_time = time.time()  
+        end_time = time.time()
         
-        if self.scale == 'B':
-            print("目標點誤差值",self.converted_target_point)
+        print("目標點誤差值",self.converted_target_point)
         print("系統運行時間:", end_time - start_time, "seconds") 
-        self.info_output(start_time,end_time)
         # plt.show()
         # plt.close()
 

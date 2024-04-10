@@ -58,7 +58,6 @@ class Env:
             self.end_point = self.adjust_coordinates(self.end_point, self.x_range_B, self.y_range_B, "目標點")
             self.start_point = self.adjust_for_obstacles(self.start_point, self.obs, "出發點")
             self.end_point = self.adjust_for_obstacles(self.end_point, self.obs, "目標點")
-            print(self.s_goal_first, self.end_point)
         self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.end_point)
     
     def update_obs(self, obs):
