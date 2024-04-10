@@ -216,3 +216,4 @@ class Env:
                 print(f"{point_name}已移至新位置：{new_coord}")
                 return new_coord
             return coord  # 如果没有重叠，就返回原坐标
+    
