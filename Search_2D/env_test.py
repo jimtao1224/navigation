@@ -54,10 +54,12 @@ class Env:
             self.start_point = self.convert_to_B_scale(self.s_start_first)
             self.end_point = self.convert_to_B_scale(self.s_goal_first)
             print("B尺度各點座標,尚未檢驗",self.start_point, self.end_point)
-            self.start_point = self.adjust_coordinates(self.start_point, self.x_range_B, self.y_range_B, "出發點")
-            self.end_point = self.adjust_coordinates(self.end_point, self.x_range_B, self.y_range_B, "目標點")
-            self.start_point = self.adjust_for_obstacles(self.start_point, self.obs, "出發點")
-            self.end_point = self.adjust_for_obstacles(self.end_point, self.obs, "目標點")
+            self.start_point = self.adjust_position(self.start_point,self.obs, self.x_range_B, self.y_range_B, self.motions,"出發點")
+            self.end_point = self.adjust_position(self.end_point, self.obs,self.x_range_B, self.y_range_B, self.motions,"目標點")
+            # self.start_point = self.adjust_coordinates(self.start_point, self.x_range_B, self.y_range_B, "出發點")
+            # self.end_point = self.adjust_coordinates(self.end_point, self.x_range_B, self.y_range_B, "目標點")
+            # self.start_point = self.adjust_for_obstacles(self.start_point, self.obs, "出發點")
+            # self.end_point = self.adjust_for_obstacles(self.end_point, self.obs, "目標點")
         self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.end_point)
     
     def update_obs(self, obs):
@@ -76,40 +78,42 @@ class Env:
                 {(0, i) for i in range(y_A)} | \
                 {(x_A - 1, i) for i in range(y_A)}
                 # Add complex obstacles (inner boundaries)
-        for i in range(150, 200):  # Increase size and complexity
-            for j in range(0, 700):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(150, 200):  # Increase size and complexity
+        #     for j in range(0, 700):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        for i in range(300, 400):  # Increase size and complexity
-            for j in range(300, 800):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(300, 400):  # Increase size and complexity
+        #     for j in range(300, 800):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        for i in range(600, 700):  # Increase size and complexity
-            for j in range(200, 600):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(600, 700):  # Increase size and complexity
+        #     for j in range(200, 600):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        for i in range(834, 967):  # Increase size and complexity
-            for j in range(123, 680):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(834, 967):  # Increase size and complexity
+        #     for j in range(123, 680):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        # Add more complex obs_Atacles
-        for i in range(200, 400, 20):  # Increase step size
-            for j in range(200, 400, 20):  # Increase step size
-                obs_A.add((i, j))
+        # # Add more complex obs_Atacles
+        # for i in range(200, 400, 20):  # Increase step size
+        #     for j in range(200, 400, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(600, 800, 20):  # Increase step size
-            for j in range(400, 600, 20):  # Increase step size
-                obs_A.add((i, j))
+        # for i in range(600, 800, 20):  # Increase step size
+        #     for j in range(400, 600, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(400, 600, 20):  # Increase step size
-            for j in range(100, 300, 20):  # Increase step size
-                obs_A.add((i, j))
+        # for i in range(400, 600, 20):  # Increase step size
+        #     for j in range(100, 300, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(700, 900, 20):  # Increase step size
-            for j in range(500, 700, 20):  # Increase step size
-                obs_A.add((i, j))
-
-
+        # for i in range(700, 900, 20):  # Increase step size
+        #     for j in range(500, 700, 20):  # Increase step size
+        #         obs_A.add((i, j))
+        initial_obstacles = set()  # Initially empty set of obstacles
+        num_initial_obstacles = 10000  # Number of initial obstacles to add
+        initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, num_initial_obstacles)
+        obs_A.update(initial_obstacles)
 
         x_B = self.x_range_B
         y_B = self.y_range_B
@@ -197,7 +201,8 @@ class Env:
         original_target_point = (original_target_point[0] * x_ratio, original_target_point[1] * y_ratio)
         displacement = ((converted_target_point[0] - original_target_point[0])**2 + (converted_target_point[1] - original_target_point[1])**2)**0.5
         return displacement
-    def adjust_coordinates(self,coord, x_range, y_range,point_name):
+    # def adjust_coordinates(self,coord, x_range, y_range,point_name):
+    def adjust_position(self,coord,obs, x_range, y_range,directions,point_name):
             x, y = coord
             if x >= x_range - 1:
                 print(f"座標轉換後{point_name}x軸位置錯誤,調整座標")
@@ -205,7 +210,19 @@ class Env:
             if y >= y_range - 1:
                 print(f"座標轉換後{point_name}y軸位置錯誤,調整座標")
                 y = y_range - 2
-            return x, y
+            new_coord=(x,y)
+            if new_coord in obs:
+                print(f"{point_name}与障碍物重叠，正在尋找新的位置...")
+                for dx, dy in directions:
+                    temp_coord = (new_coord[0] + dx, new_coord[1] + dy)
+                    if 0 <= temp_coord[0] < x_range and 0 <= temp_coord[1] < y_range and temp_coord not in obs:
+                        new_coord = temp_coord
+                        print(f"{point_name}已移至新位置：{new_coord}")
+                        return new_coord
+                print(f"{point_name}未找到合适的新位置，保持原位置。")
+            return new_coord  # 如果没有重叠或找不到新位置，就返回调整后或原始坐标
+            # return x, y
+    
     def adjust_for_obstacles(self,coord, obs, point_name):
             if coord in obs:
                 print(f"{point_name}與障礙物重疊，正在尋找新的位置...")
@@ -216,4 +233,27 @@ class Env:
                 print(f"{point_name}已移至新位置：{new_coord}")
                 return new_coord
             return coord  # 如果没有重叠，就返回原坐标
-    
+
+
+    def add_random_obstacles(self,obstacles_set, x_limit, y_limit, num_new_obstacles):
+        """
+        Add random obstacles to the specified set.
+
+        Parameters:
+        obstacles_set (set of tuples): The set of existing obstacles.
+        x_limit (int): The x-dimension of the map.
+        y_limit (int): The y-dimension of the map.
+        num_new_obstacles (int): Number of new obstacles to add.
+
+        Returns:
+        set: Updated set of obstacles including new random obstacles.
+        """
+        while num_new_obstacles > 0:
+            x = random.randint(0, x_limit - 1)
+            y = random.randint(0, y_limit - 1)
+            if (x, y) not in obstacles_set:
+                obstacles_set.add((x, y))
+                num_new_obstacles -= 1
+        return obstacles_set
+
+

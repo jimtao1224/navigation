@@ -20,7 +20,7 @@ class Environment:
         #     Environment.start_point = (random.randint(1, 999), random.randint(1, 999))
         #     Environment.end_point = (random.randint(1, 799), random.randint(1, 790))
         scale_A_size = (1000, 800)
-        scale_B_size = (100,100)
+        scale_B_size = (50,40)
         robot_size = (1,1)
         min_obstacle_count = 10
         self.min_obstacle_count = min_obstacle_count
