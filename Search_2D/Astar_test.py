@@ -247,11 +247,13 @@ def main(scale):
 
     print("目標點誤差值",astar.converted_target_point)  
     print("系統運行時間:", end_time - start_time, "seconds") 
-    plt.show()
+    # plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
     # plot.animation_ara_star(path, visited, "Repeated A*")
 
 
 if __name__ == '__main__':
     main(scale='A')
+    plt.show(block=False)  
     main(scale='B')
+    plt.show()

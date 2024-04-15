@@ -30,7 +30,7 @@ class Env:
         self.y_range_A = environment.scale_A_size[1]
         self.x_range_B = environment.scale_B_size[0]
         self.y_range_B = environment.scale_B_size[1]
-
+        print("A尺度地圖大小:",self.x_range_A,self.y_range_A)
         
         # ~~    
         # self.x_range_A = 1000  # 尺度A的宽度
@@ -78,6 +78,7 @@ class Env:
                 {(0, i) for i in range(y_A)} | \
                 {(x_A - 1, i) for i in range(y_A)}
                 # Add complex obstacles (inner boundaries)
+        # obs_A.add((150, 200))
         # for i in range(150, 200):  # Increase size and complexity
         #     for j in range(0, 700):  # Increase size and complexity
         #         obs_A.add((i, j))
@@ -111,7 +112,7 @@ class Env:
         #     for j in range(500, 700, 20):  # Increase step size
         #         obs_A.add((i, j))
         initial_obstacles = set()  # Initially empty set of obstacles
-        num_initial_obstacles = 10000  # Number of initial obstacles to add
+        num_initial_obstacles = 5000  # Number of initial obstacles to add
         initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, num_initial_obstacles)
         obs_A.update(initial_obstacles)
 

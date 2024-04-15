@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
 # from Search_2D import env_test
-
+from env_test import Env
 
 class Plotting:
     def __init__(self, xI, xG, env):
@@ -23,7 +23,7 @@ class Plotting:
         self.Env = environment
         self.xI, self.xG = xI, xG
         self.x_range, self.y_range = self.set_scale(scale)
-        self.obs = environment.obs_map()
+        self.obs = self.Env.obs
         self.fig, self.ax = plt.subplots()
     def update_obs(self, obs):
         self.obs = obs
@@ -83,13 +83,13 @@ class Plotting:
         obs_x = [x[0] for x in self.obs]
         obs_y = [x[1] for x in self.obs]
 
-        start, = plt.plot(self.xI[0], self.xI[1], "bs", label='start')
-        goal, = plt.plot(self.xG[0], self.xG[1], "gs", label='goal')
-        obstacles, = plt.plot(obs_x, obs_y, "sk", label='obstacles')
+        start, = plt.plot(self.xI[0], self.xI[1], "bs", label='start',markersize=5)
+        goal, = plt.plot(self.xG[0], self.xG[1], "gs", label='goal',markersize=5)
+        obstacles, = plt.plot(obs_x, obs_y, "sk", label='obstacles',markersize=5)
         planned_path_icon = Line2D([0], [0], marker='o', color='w', label='Plannig path', 
-                               markerfacecolor='r', markersize=10)
+                               markerfacecolor='r', markersize=5)
         robot_path_icon = Line2D([0], [0], marker='o', color='w', label='robot path', 
-                             markerfacecolor='y', markersize=10)
+                             markerfacecolor='y', markersize=5)
         # self.plot_scale_b_borders()
         plt.legend(handles=[start, goal, obstacles,planned_path_icon,robot_path_icon], loc='upper right')
         plt.title(name)

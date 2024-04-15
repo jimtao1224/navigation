@@ -83,11 +83,12 @@ class DStar:
         if self.scale == 'B':
             print("檢驗後B尺度目標點與出發點座標",self.s_start, self.s_goal)
         # print("ComputePath")
+        # print("障礙物",self.Env.obs)
         self.ComputePath()
         # print("plot_path")
         self.plotter.plot_path(self.extract_path())    
         # print("animate_path")
-        self.plotter.animate_path(self.extract_path())
+        # self.plotter.animate_path(self.extract_path())
         print("路徑長度",len(self.extract_path())-1)
         end_time = time.time()
         # info_output = self.info_output(start_time,end_time)
@@ -123,13 +124,13 @@ class DStar:
         if s != self.s_goal:
             self.rhs[s] = float("inf")
             for x in self.get_neighbor(s):
-                if x not in self.g:
-                    continue  # 跳过当前的邻居节点，继续下一个
+            #     if x not in self.g:
+            #         continue  # 跳过当前的邻居节点，继续下一个
                 self.rhs[s] = min(self.rhs[s], self.g[x] + self.cost(s, x))
         if s in self.U:
             self.U.pop(s)
-        if s not in self.g:
-            self.g[s] = float('inf')  # 为不存在的键赋予默认值
+        # if s not in self.g:
+        #     self.g[s] = float('inf')  # 为不存在的键赋予默认值
         if self.g[s] != self.rhs[s]:
             self.U[s] = self.CalculateKey(s)
    
@@ -186,11 +187,11 @@ class DStar:
 
     def get_neighbor(self, s):
         nei_list = set()
-        distance = self.calculate_distance(s, self.s_start)
+        # distance = self.calculate_distance(s, self.s_start)
         for u in self.u_set:
             s_next = tuple([s[i] + u[i]   for i in range(2)])       
             if s_next not in self.Env.obs:
-                nei_list.add(s_next) 
+                nei_list.add(s_next)
         return nei_list
 
     def calculate_distance(self, s1, s2):
@@ -316,9 +317,9 @@ def d_star_main():
     # 分開顯示
     dstar = DStar("euclidean",scale='B') 
     dstar.run()
-    plt.show(block=False)  
-    dstar = DStar("euclidean",scale='A') 
-    dstar.run()
+    # plt.show(block=False)  
+    # dstar = DStar("euclidean",scale='A') 
+    # dstar.run()
     plt.show()
     # 最後同步顯示
 if __name__ == '__main__':
