@@ -20,7 +20,6 @@ class DStar:
     def __init__(self, heuristic_type,scale):
         environment = Env(scale=scale)
         self.Env = environment
-        print("D*lite scale:", self.Env.scale)
         scale = self.Env.scale
         self.scale = scale
         self.u_set = self.Env.motions  # feasible input set
@@ -30,6 +29,7 @@ class DStar:
         self.s_start_first = self.Env.s_start_first
         self.s_goal_first = self.Env.s_goal_first
         self.converted_target_point =self.Env.converted_target_point
+        self.entropy = self.Env.entropy
         # if scale == 'A':
         #     self.s_start = self.s_start_first
         #     self.s_goal = self.s_goal_first
@@ -79,6 +79,7 @@ class DStar:
         print("障礙物總數:", len(self.Env.obs))
         print("障礙物覆蓋率:",self.Env.obstacle_coverage)
         print("地圖大小:", self.Env.get_map_size())
+        print("選用路徑規劃算法:D* Lite")
         print( "原A尺度出發點與目標點座標",self.s_start_first, self.s_goal_first)
         if self.scale == 'B':
             print("檢驗後B尺度目標點與出發點座標",self.s_start, self.s_goal)
@@ -92,7 +93,8 @@ class DStar:
         print("路徑長度",len(self.extract_path())-1)
         end_time = time.time()
         # info_output = self.info_output(start_time,end_time)
-        print("目標點誤差值",self.converted_target_point)
+        if self.scale == 'B':
+            print("目標點誤差值",self.converted_target_point)
         print("系統運行時間:", end_time - start_time, "seconds") 
         # plt.show()
         # plt.close()
@@ -276,22 +278,21 @@ class DStar:
         new_data = {
         "障礙物總數": [len(self.Env.obs)],
         "障礙物覆蓋率": [self.Env.obstacle_coverage],
-        "尺度A地圖大小": [self.Env.get_map_size()],  # 调用函数获取地图大小
-        "尺度B地圖大小": [self.Env.get_map_size()],
-        "原A尺度出發點座標": [str(self.s_start_first)],  # 將座標轉換成字符串
-        "原A尺度目標點座標": [str(self.s_goal_first)],
-        "檢驗後B尺度出發點座標": [str(self.s_start)],
-        "檢驗後B尺度目標點座標": [str(self.s_goal)],
-        "總時間": [f"{len(self.extract_path())-1} "],  
-        "地圖生成時間(秒)": [f"{end_time - start_time} 秒"]  # 格式化浮點數，保留兩位小數
+        "地圖大小": [self.Env.get_map_size()],  
+        "地圖熵值":[self.Env.entropy],
+        "選用路徑規劃算法":["D* Lite"],
+        "尺度": [self.scale],
+        "路徑長度": [f"{len(self.extract_path())-1} "],  
+        "系統運行時間": [f"{end_time - start_time} 秒"],  
+        "目標點誤差值":[self.converted_target_point]
     }
 
         # 調整列的顯示順序
-        columns_order = ["尺度B地圖大小","障礙物總數", "障礙物覆蓋率", "原A尺度出發點座標", "原A尺度目標點座標", "檢驗後B尺度出發點座標", "檢驗後B尺度目標點座標", "總時間", "地圖生成時間(秒)"]
+        columns_order = ["障礙物總數", "障礙物覆蓋率", "地圖大小", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
         
         # 將字典轉換成DataFrame
         new_df = pd.DataFrame(new_data)
-        file_path = 'output.xlsx'
+        file_path = 'output2.xlsx'
         try:
 
             existing_df = pd.read_excel(file_path)
@@ -315,12 +316,24 @@ def d_star_main():
     # dstar.run()
     # plt.show()
     # 分開顯示
-    dstar = DStar("euclidean",scale='B') 
-    dstar.run()
-    # plt.show(block=False)  
-    # dstar = DStar("euclidean",scale='A') 
-    # dstar.run()
-    plt.show()
-    # 最後同步顯示
+    # for _ in range(10): 
+    #     try:   
+    #         dstar = DStar("euclidean",scale='B') 
+    #         dstar.run()
+    #         # plt.show(block=False)  
+    #         dstar = DStar("euclidean",scale='A') 
+    #         dstar.run()
+    #     except Exception as e:
+    #         print(e)
+    #         continue
+            # plt.show()
+
+            dstar = DStar("euclidean",scale='A') 
+            dstar.run()
+            plt.show(block=False) 
+            dstar = DStar("euclidean",scale='B') 
+            dstar.run()
+            plt.show()
+            # 最後同步顯示
 if __name__ == '__main__':
     d_star_main()

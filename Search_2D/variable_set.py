@@ -14,19 +14,21 @@ class Environment:
     end_point = None
     def __init__(self,scale):
         self.scale = scale
-        # Environment.start_point = (870, 58)
-        # Environment.end_point = (388, 642)
-        if Environment.start_point is None and Environment.end_point is None:
-            Environment.start_point = (random.randint(1, 999), random.randint(1, 799))
-            Environment.end_point = (random.randint(1, 999), random.randint(1, 799))
-        # Environment.start_point = (52, 74)
-        # Environment.end_point = (88, 42)
+        Environment.start_point = (120, 450)
+        Environment.end_point = (980, 482)
+        # if Environment.start_point is None and Environment.end_point is None:
+        #     Environment.start_point = (random.randint(1, 999), random.randint(1, 799))
+        #     Environment.end_point = (random.randint(1, 999), random.randint(1, 799))
+        # Environment.start_point = (10, 10)
+        # Environment.end_point = (88, 80)
         # scale_A_size = (100, 100)
         # scale_B_size = (10,10)
         scale_A_size = (1000, 800)
         scale_B_size = (100,80)
         robot_size = (1,1)
         min_obstacle_count = 2
+        num_initial_obstacles = 2500
+        self.num_initial_obstacles = num_initial_obstacles
         self.min_obstacle_count = min_obstacle_count
         self.robot_size = robot_size
         self.start_point = Environment.start_point

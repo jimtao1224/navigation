@@ -28,7 +28,6 @@ class AStar:
 
         environment = Env(scale=scale)
         self.Env = environment
-        print("A* scale:", self.Env.scale)
         scale = self.Env.scale
         self.scale = scale
         self.u_set = self.Env.motions  # feasible input set
@@ -222,31 +221,70 @@ class AStar:
             return abs(goal[0] - s[0]) + abs(goal[1] - s[1])
         else:
             return math.hypot(goal[0] - s[0], goal[1] - s[1])
+    def info_output(self,start_time,end_time,path):
+        new_data = {
+        "障礙物總數": [len(self.Env.obs)],
+        "障礙物覆蓋率": [self.Env.obstacle_coverage],
+        "地圖大小": [self.Env.get_map_size()],  
+        "地圖熵值":[self.Env.entropy],
+        "選用路徑規劃算法":["A*"],
+        "尺度": [self.scale],
+        "路徑長度": [f"{len(path)-1} "],  
+        "系統運行時間": [f"{end_time - start_time} 秒"],  
+        "目標點誤差值":[self.converted_target_point]
+    }
 
+        # 調整列的顯示順序
+        columns_order = ["障礙物總數", "障礙物覆蓋率", "地圖大小", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
+        
+        # 將字典轉換成DataFrame
+        new_df = pd.DataFrame(new_data)
+        file_path = 'output_astar.xlsx'
+        try:
+
+            existing_df = pd.read_excel(file_path)
+            # 將新資料附加到現有資料的末尾
+            updated_df = pd.concat([existing_df, new_df], ignore_index=True)
+        except FileNotFoundError:
+
+            updated_df = new_df
+        # 重新排序列
+        updated_df.to_excel(file_path, index=False, columns=columns_order)
 
 def main(scale):
     start_time = time.time()
-    # s_start = (5, 5)
-    # s_goal = (45, 25)
     astar = AStar("euclidean",scale=scale)
     print("障礙物總數:", len(astar.Env.obs))
     print("障礙物覆蓋率:",astar.Env.obstacle_coverage)
     print("地圖大小:", astar.Env.get_map_size())
+    print("選用路徑規劃算法:A*")
     print( "原A尺度出發點與目標點座標",astar.s_start_first, astar.s_goal_first)
     if astar.scale == 'B':
         print("檢驗後B尺度目標點與出發點座標",astar.s_start, astar.s_goal)
     s_start = astar.s_start
     s_goal = astar.s_goal
     environment=astar.Env
-    plot = plotting_test.Plotting(s_start,s_goal,environment)
+    plotter = astar.plotter
+    if scale == 'A':
+        plotter.plot_grid("A*,scale A")
+    elif scale == 'B':
+        plotter.plot_grid("A*,scale B")
+    # plot = plotting_test.Plotting(s_start,s_goal,environment)
     path, visited = astar.searching()
     print("路徑長度",len(path)-1)
-    # plot.animate_path(path) 
-    plot.animation(path, visited, "A*")  # animation
+    if scale == 'A':
+        # plotter.animate_path(path) 
+        plotter.animation(path, visited, "A*,scale A")
+    elif scale == 'B':
+        # plotter.animate_path(path) 
+        plotter.animation(path, visited, "A*,scale B")
+    # plotter.animate_path(path) 
+    # plotter.animation(path, visited, "A*")  # animation
     end_time = time.time()
-
-    print("目標點誤差值",astar.converted_target_point)  
+    if scale == 'B':
+        print("目標點誤差值",astar.converted_target_point)
     print("系統運行時間:", end_time - start_time, "seconds") 
+    # info_output = astar.info_output(start_time,end_time,path)
     # plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
     # plot.animation_ara_star(path, visited, "Repeated A*")
@@ -254,6 +292,15 @@ def main(scale):
 
 if __name__ == '__main__':
     main(scale='A')
-    plt.show(block=False)  
+    plt.show(block=False)
     main(scale='B')
     plt.show()
+    # for _ in range(10):
+    #     try:
+    #         main(scale='A')
+    #         # plt.show(block=False)  
+    #         main(scale='B')
+    #         # plt.show()
+    #     except Exception as e:
+    #         print(e)
+    #         continue

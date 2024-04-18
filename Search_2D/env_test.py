@@ -4,6 +4,7 @@ import math
 import csv
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
@@ -26,11 +27,14 @@ class Env:
         self.robot_size = environment.robot_size
         self.scale = scale       
         self.min_obstacle_count = environment.min_obstacle_count
+        self.num_initial_obstacles = environment.num_initial_obstacles
         self.x_range_A = environment.scale_A_size[0]
         self.y_range_A = environment.scale_A_size[1]
         self.x_range_B = environment.scale_B_size[0]
         self.y_range_B = environment.scale_B_size[1]
-        print("A尺度地圖大小:",self.x_range_A,self.y_range_A)
+        self.entropy = self.map_entropy()
+        # print("A尺度地圖大小:",self.x_range_A,self.y_range_A)
+        print("地圖熵值",self.entropy)
         
         # ~~    
         # self.x_range_A = 1000  # 尺度A的宽度
@@ -77,44 +81,44 @@ class Env:
                 {(i, y_A - 1) for i in range(x_A)} | \
                 {(0, i) for i in range(y_A)} | \
                 {(x_A - 1, i) for i in range(y_A)}
-                # Add complex obstacles (inner boundaries)
-        # obs_A.add((150, 200))
-        # for i in range(150, 200):  # Increase size and complexity
-        #     for j in range(0, 700):  # Increase size and complexity
-        #         obs_A.add((i, j))
 
-        # for i in range(300, 400):  # Increase size and complexity
-        #     for j in range(300, 800):  # Increase size and complexity
-        #         obs_A.add((i, j))
+        obs_A.add((150, 200))
+        for i in range(150, 200):  # Increase size and complexity
+            for j in range(0, 700):  # Increase size and complexity
+                obs_A.add((i, j)) 
 
-        # for i in range(600, 700):  # Increase size and complexity
-        #     for j in range(200, 600):  # Increase size and complexity
-        #         obs_A.add((i, j))
+        for i in range(300, 400):  # Increase size and complexity
+            for j in range(300, 800):  # Increase size and complexity
+                obs_A.add((i, j))
 
-        # for i in range(834, 967):  # Increase size and complexity
-        #     for j in range(123, 680):  # Increase size and complexity
-        #         obs_A.add((i, j))
+        for i in range(600, 700):  # Increase size and complexity
+            for j in range(200, 600):  # Increase size and complexity
+                obs_A.add((i, j))
 
-        # # Add more complex obs_Atacles
-        # for i in range(200, 400, 20):  # Increase step size
-        #     for j in range(200, 400, 20):  # Increase step size
-        #         obs_A.add((i, j))
+        for i in range(834, 967):  # Increase size and complexity
+            for j in range(123, 680):  # Increase size and complexity
+                obs_A.add((i, j))
 
-        # for i in range(600, 800, 20):  # Increase step size
-        #     for j in range(400, 600, 20):  # Increase step size
-        #         obs_A.add((i, j))
+        # Add more complex obs_Atacles
+        for i in range(200, 400, 20):  # Increase step size
+            for j in range(200, 400, 20):  # Increase step size
+                obs_A.add((i, j))
 
-        # for i in range(400, 600, 20):  # Increase step size
-        #     for j in range(100, 300, 20):  # Increase step size
-        #         obs_A.add((i, j))
+        for i in range(600, 800, 20):  # Increase step size
+            for j in range(400, 600, 20):  # Increase step size
+                obs_A.add((i, j))
 
-        # for i in range(700, 900, 20):  # Increase step size
-        #     for j in range(500, 700, 20):  # Increase step size
-        #         obs_A.add((i, j))
-        initial_obstacles = set()  # Initially empty set of obstacles
-        num_initial_obstacles = 5000  # Number of initial obstacles to add
-        initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, num_initial_obstacles)
-        obs_A.update(initial_obstacles)
+        for i in range(400, 600, 20):  # Increase step size
+            for j in range(100, 300, 20):  # Increase step size
+                obs_A.add((i, j))
+
+        for i in range(700, 900, 20):  # Increase step size
+            for j in range(500, 700, 20):  # Increase step size
+                obs_A.add((i, j))
+
+        # initial_obstacles = set()  # Initially empty set of obstacles
+        # initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, self.num_initial_obstacles)
+        # obs_A.update(initial_obstacles)
 
         x_B = self.x_range_B
         y_B = self.y_range_B
@@ -256,5 +260,30 @@ class Env:
                 obstacles_set.add((x, y))
                 num_new_obstacles -= 1
         return obstacles_set
+    def map_entropy(self):
+        if self.scale == 'A':
+            total_cells = self.x_range_A * self.y_range_A
+        elif self.scale == 'B':
+            total_cells = self.x_range_B * self.y_range_B
+        cell_count = {}
+        obs = self.obs_map()
+        num_obs = len(obs)
+        num_non_obs = total_cells - num_obs
 
+        p_obs = num_obs / total_cells
+        p_non_obs = num_non_obs / total_cells
+        from math import log2
+        entropy = -p_obs * math.log2(p_obs) - p_non_obs * math.log2(p_non_obs)
+        # for ob in obs:
+        #     if ob in cell_count:
+        #         cell_count[ob] += 1
+        #     else:
+        #         cell_count[ob] = 1
+        # non_obs_count = total_cells - len(obs)
+        # if non_obs_count > 0:
+        #     cell_count['no_obs'] = non_obs_count
+        # probability = [count/total_cells for count in cell_count.values()]        
+        # from math import log2
+        # entropy = -sum([p*log2(p) for p in probability if p > 0])
 
+        return entropy
