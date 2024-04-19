@@ -25,6 +25,7 @@ class Plotting:
         self.x_range, self.y_range = self.set_scale(scale)
         self.obs = self.Env.obs
         self.fig, self.ax = plt.subplots()
+        self.first_draw = True
     def update_obs(self, obs):
         self.obs = obs
 
@@ -129,15 +130,16 @@ class Plotting:
         # print(path_x, path_y, "path_x, path_y")
         self.ax.set_xlim(0, self.x_range - 1)
         self.ax.set_ylim(0, self.y_range - 1)
-        # print(self.env.x_range_A,"self.env.x_range_A")
-    
-        plt.plot(path_x, path_y, linewidth='1', color='r')
-
+        if self.first_draw == True:
+            plt.plot(path_x, path_y, linewidth='1', color='r')
+            self.first_draw = False
+        else:
+            plt.plot(path_x, path_y, linewidth='1', color=cl)
         
         plt.plot(self.xI[0], self.xI[1], "bs")
         plt.plot(self.xG[0], self.xG[1], "gs")
 
-        # plt.pause(0.01)
+        plt.pause(0.01)
     
     def animate_path(self, path):
         x_data, y_data = [], []
@@ -172,7 +174,7 @@ class Plotting:
     #     len_fore, len_back = len(v_fore), len(v_back)
 
     #     for k in range(max(len_fore, len_back)):
-    #         if k < len_fore:
+    #         if k < len_fore:cl
     #             plt.plot(v_fore[k][0], v_fore[k][1], linewidth='3', color='gray', marker='o')
     #         if k < len_back:
     #             plt.plot(v_back[k][0], v_back[k][1], linewidth='3', color='cornflowerblue', marker='o')

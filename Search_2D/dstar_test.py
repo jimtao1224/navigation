@@ -45,11 +45,12 @@ class DStar:
         #     self.s_goal = self.adjust_for_obstacles(self.s_goal, self.Env.obs, "目標點")
         # self.converted_target_point = self.calculate_target_displacement(self.s_goal_first, self.s_goal)
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,environment) 
-
+        # self.fig = plt.figure()
         self.heuristic_type = heuristic_type
         self.x, self.y = self.set_scale(scale)
         self.g, self.rhs, self.U = {}, {}, {}
         self.km = 0
+        self.count = 0
         for i in range(1, self.x - 1):
             for j in range(1, self.y - 1):
                 self.rhs[(i, j)] = float("inf")
@@ -77,7 +78,7 @@ class DStar:
         elif self.scale == 'B':
             self.plotter.plot_grid("D* Lite_B")
         print("障礙物總數:", len(self.Env.obs))
-        print("障礙物覆蓋率:",self.Env.obstacle_coverage)
+        # print("障礙物覆蓋率:",self.Env.obstacle_coverage)
         print("地圖大小:", self.Env.get_map_size())
         print("選用路徑規劃算法:D* Lite")
         print( "原A尺度出發點與目標點座標",self.s_start_first, self.s_goal_first)
@@ -95,11 +96,55 @@ class DStar:
         # info_output = self.info_output(start_time,end_time)
         if self.scale == 'B':
             print("目標點誤差值",self.converted_target_point)
-        print("系統運行時間:", end_time - start_time, "seconds") 
+        print(f"系統運行時間: {end_time - start_time:.3f} seconds")
+        self.plotter.fig.canvas.mpl_connect('button_press_event', self.on_press)
+        # self.fig.canvas.mpl_connect('button_press_event', self.on_press)
         # plt.show()
         # plt.close()
 
-        
+    def on_press(self, event):
+        x, y = event.xdata, event.ydata
+        if x < 0 or x > self.x - 1 or y < 0 or y > self.y - 1:
+            print("Please choose right area!")
+        else:
+            x, y = int(x), int(y)
+            print("Change position: s =", x, ",", "y =", y)
+
+            s_curr = self.s_start
+            s_last = self.s_start
+            i = 0
+            path = [self.s_start]
+
+            while s_curr != self.s_goal:
+                s_list = {}
+
+                for s in self.get_neighbor(s_curr):
+                    s_list[s] = self.g[s] + self.cost(s_curr, s)
+                s_curr = min(s_list, key=s_list.get)
+                path.append(s_curr)
+
+                if i < 1:
+                    self.km += self.h(s_last, s_curr)
+                    s_last = s_curr
+                    if (x, y) not in self.Env.obs:
+                        self.Env.obs.add((x, y))
+                        plt.plot(x, y, 'sk')
+                        self.g[(x, y)] = float("inf")
+                        self.rhs[(x, y)] = float("inf")
+                    else:
+                        self.Env.obs.remove((x, y))
+                        plt.plot(x, y, marker='s', color='white')
+                        self.UpdateVertex((x, y))
+                    for s in self.get_neighbor((x, y)):
+                        self.UpdateVertex(s)
+                    i += 1
+
+                    self.count += 1
+                    self.visited = set()
+                    self.ComputePath()
+
+            self.plotter.plot_path(path)
+            self.plotter.fig.canvas.draw_idle()       
 
     def ComputePath(self):
         while True:

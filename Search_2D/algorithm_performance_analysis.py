@@ -36,4 +36,9 @@ all_efficiencies = pd.concat([efficiency_astar, efficiency_dijkstra, efficiency_
 
 # 輸出每個熵值等級的前三個最高效率的條目
 output = all_efficiencies.groupby('熵值等級').apply(lambda x: x.nlargest(3, '轉換效率 (%)')).reset_index(drop=True)
-print(output)
+
+# 儲存數據到Excel檔案
+output_file_path = '/home/jim/Desktop/data_base.xlsx'
+output.to_excel(output_file_path, index=False)
+
+print("數據已保存到", output_file_path)

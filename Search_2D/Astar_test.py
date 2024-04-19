@@ -255,7 +255,7 @@ def main(scale):
     start_time = time.time()
     astar = AStar("euclidean",scale=scale)
     print("障礙物總數:", len(astar.Env.obs))
-    print("障礙物覆蓋率:",astar.Env.obstacle_coverage)
+    # print("障礙物覆蓋率:",astar.Env.obstacle_coverage)
     print("地圖大小:", astar.Env.get_map_size())
     print("選用路徑規劃算法:A*")
     print( "原A尺度出發點與目標點座標",astar.s_start_first, astar.s_goal_first)
@@ -283,14 +283,12 @@ def main(scale):
     end_time = time.time()
     if scale == 'B':
         print("目標點誤差值",astar.converted_target_point)
-    print("系統運行時間:", end_time - start_time, "seconds") 
+    print(f"系統運行時間: {end_time - start_time:.3f} seconds") 
     # info_output = astar.info_output(start_time,end_time,path)
     # plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
     # plot.animation_ara_star(path, visited, "Repeated A*")
-
-
-if __name__ == '__main__':
+def a_star_main():
     main(scale='A')
     plt.show(block=False)
     main(scale='B')
@@ -304,3 +302,6 @@ if __name__ == '__main__':
     #     except Exception as e:
     #         print(e)
     #         continue
+
+if __name__ == '__main__':
+  a_star_main()

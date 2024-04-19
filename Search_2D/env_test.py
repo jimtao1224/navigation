@@ -12,10 +12,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
 from variable_set import Environment
 # from Search_2D import run
 # from run import data_set
+
 class Env:
     scale_warning_shown = False
     def __init__(self,scale):
-        print("Env scale:", scale)
+        # print("Env scale:", scale)
         environment = Environment(scale=scale)
         start_point = environment.start_point
         end_point = environment.end_point
@@ -34,7 +35,7 @@ class Env:
         self.y_range_B = environment.scale_B_size[1]
         self.entropy = self.map_entropy()
         # print("A尺度地圖大小:",self.x_range_A,self.y_range_A)
-        print("地圖熵值",self.entropy)
+        # print("地圖熵值",self.entropy)
         
         # ~~    
         # self.x_range_A = 1000  # 尺度A的宽度

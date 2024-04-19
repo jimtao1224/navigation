@@ -110,7 +110,7 @@ def main(scale):
     start_time = time.time()
     dijkstra = Dijkstra('None',scale)
     print("障礙物總數:", len(dijkstra.Env.obs))
-    print("障礙物覆蓋率:",dijkstra.Env.obstacle_coverage)
+    # print("障礙物覆蓋率:",dijkstra.Env.obstacle_coverage)
     print("地圖大小:", dijkstra.Env.get_map_size())
     print("選用路徑規劃算法:dijkstra")
     print( "原A尺度出發點與目標點座標",dijkstra.s_start_first, dijkstra.s_goal_first)
@@ -132,11 +132,11 @@ def main(scale):
     end_time = time.time()
     if scale == 'B':
         print("目標點誤差值",dijkstra.converted_target_point)
-    print("系統運行時間:", end_time - start_time, "seconds") 
+    print(f"系統運行時間: {end_time - start_time:.3f} seconds")
     # dijkstra.info_output_Dijkstra(start_time,end_time,path)
     # plot.animation(path, visited, "Dijkstra's")  # animation generate
     
-if __name__ == '__main__':
+def Dijkstra_main():
     main(scale='A')
     plt.show(block=False)
     main(scale='B')
@@ -150,3 +150,6 @@ if __name__ == '__main__':
     #         except Exception as e:
     #             print(e)
     #             continue
+
+if __name__ == '__main__':
+ Dijkstra_main()

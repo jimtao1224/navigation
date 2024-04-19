@@ -115,7 +115,7 @@ class DStar:
                     self.visited = set()
                     self.ComputePath()
 # 重置已訪問的節點集合，然後重新計算最短路徑。這是為了在更新障礙物位置後，更新最短路徑。
-            self.plot_visited(self.visited)
+            # self.plot_visited(self.visited)
             self.plot_path(path)
             self.fig.canvas.draw_idle()
 # 在每次迴圈結束時，將訪問過的節點繪製在圖形上，並繪製計算出的最短路徑。
