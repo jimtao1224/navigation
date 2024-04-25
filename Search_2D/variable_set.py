@@ -28,6 +28,8 @@ class Environment:
         robot_size = (1,1)
         min_obstacle_count = 2
         num_initial_obstacles = 5000
+        seed = 1
+        self.seed = seed
         self.num_initial_obstacles = num_initial_obstacles
         self.min_obstacle_count = min_obstacle_count
         self.robot_size = robot_size

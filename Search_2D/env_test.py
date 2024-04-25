@@ -29,6 +29,7 @@ class Env:
         self.scale = scale       
         self.min_obstacle_count = environment.min_obstacle_count
         self.num_initial_obstacles = environment.num_initial_obstacles
+        self.seed = environment.seed
         self.x_range_A = environment.scale_A_size[0]
         self.y_range_A = environment.scale_A_size[1]
         self.x_range_B = environment.scale_B_size[0]
@@ -118,7 +119,7 @@ class Env:
         #         obs_A.add((i, j))
 
         initial_obstacles = set()  # Initially empty set of obstacles
-        initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, self.num_initial_obstacles)
+        initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, self.num_initial_obstacles,self.seed )
         obs_A.update(initial_obstacles)
 
         x_B = self.x_range_B
@@ -241,7 +242,7 @@ class Env:
             return coord  # 如果没有重叠，就返回原坐标
 
 
-    def add_random_obstacles(self,obstacles_set, x_limit, y_limit, num_new_obstacles):
+    def add_random_obstacles(self,obstacles_set, x_limit, y_limit, num_new_obstacles,seed):
         """
         Add random obstacles to the specified set.
 
@@ -254,6 +255,9 @@ class Env:
         Returns:
         set: Updated set of obstacles including new random obstacles.
         """
+        if seed is not None:
+            random.seed(seed)
+
         while num_new_obstacles > 0:
             x = random.randint(0, x_limit - 1)
             y = random.randint(0, y_limit - 1)
