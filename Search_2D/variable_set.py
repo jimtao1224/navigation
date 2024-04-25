@@ -27,7 +27,7 @@ class Environment:
         scale_B_size = (100,80)
         robot_size = (1,1)
         min_obstacle_count = 2
-        num_initial_obstacles = 2500
+        num_initial_obstacles = 5000
         self.num_initial_obstacles = num_initial_obstacles
         self.min_obstacle_count = min_obstacle_count
         self.robot_size = robot_size

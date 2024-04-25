@@ -83,43 +83,43 @@ class Env:
                 {(0, i) for i in range(y_A)} | \
                 {(x_A - 1, i) for i in range(y_A)}
 
-        obs_A.add((150, 200))
-        for i in range(150, 200):  # Increase size and complexity
-            for j in range(0, 700):  # Increase size and complexity
-                obs_A.add((i, j)) 
+        # obs_A.add((150, 200))
+        # for i in range(150, 200):  # Increase size and complexity
+        #     for j in range(0, 700):  # Increase size and complexity
+        #         obs_A.add((i, j)) 
 
-        for i in range(300, 400):  # Increase size and complexity
-            for j in range(300, 800):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(300, 400):  # Increase size and complexity
+        #     for j in range(300, 800):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        for i in range(600, 700):  # Increase size and complexity
-            for j in range(200, 600):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(600, 700):  # Increase size and complexity
+        #     for j in range(200, 600):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        for i in range(834, 967):  # Increase size and complexity
-            for j in range(123, 680):  # Increase size and complexity
-                obs_A.add((i, j))
+        # for i in range(834, 967):  # Increase size and complexity
+        #     for j in range(123, 680):  # Increase size and complexity
+        #         obs_A.add((i, j))
 
-        # Add more complex obs_Atacles
-        for i in range(200, 400, 20):  # Increase step size
-            for j in range(200, 400, 20):  # Increase step size
-                obs_A.add((i, j))
+        # # Add more complex obs_Atacles
+        # for i in range(200, 400, 20):  # Increase step size
+        #     for j in range(200, 400, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(600, 800, 20):  # Increase step size
-            for j in range(400, 600, 20):  # Increase step size
-                obs_A.add((i, j))
+        # for i in range(600, 800, 20):  # Increase step size
+        #     for j in range(400, 600, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(400, 600, 20):  # Increase step size
-            for j in range(100, 300, 20):  # Increase step size
-                obs_A.add((i, j))
+        # for i in range(400, 600, 20):  # Increase step size
+        #     for j in range(100, 300, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        for i in range(700, 900, 20):  # Increase step size
-            for j in range(500, 700, 20):  # Increase step size
-                obs_A.add((i, j))
+        # for i in range(700, 900, 20):  # Increase step size
+        #     for j in range(500, 700, 20):  # Increase step size
+        #         obs_A.add((i, j))
 
-        # initial_obstacles = set()  # Initially empty set of obstacles
-        # initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, self.num_initial_obstacles)
-        # obs_A.update(initial_obstacles)
+        initial_obstacles = set()  # Initially empty set of obstacles
+        initial_obstacles = self.add_random_obstacles(initial_obstacles, self.x_range_A, self.y_range_A, self.num_initial_obstacles)
+        obs_A.update(initial_obstacles)
 
         x_B = self.x_range_B
         y_B = self.y_range_B
