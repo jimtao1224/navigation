@@ -129,6 +129,7 @@ class Plotting:
         path_y = [path[i][1] for i in range(len(path))]
         # print(path_x, path_y, "path_x, path_y")
         self.ax.set_xlim(0, self.x_range - 1)
+        print(self.x_range, self.y_range)
         self.ax.set_ylim(0, self.y_range - 1)
         if self.first_draw == True:
             plt.plot(path_x, path_y, linewidth='1', color='r')

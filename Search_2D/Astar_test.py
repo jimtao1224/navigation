@@ -11,6 +11,7 @@ import matplotlib.animation as animation
 import heapq
 import time
 import pandas as pd
+import psutil
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Search_based_Planning/")
 
@@ -42,12 +43,19 @@ class AStar:
         # self.Env = env.Env()  # class Env
         # self.u_set = self.Env.motions  # feasible input set
         # self.obs = self.Env.obs  # position of obstacles
-        self.converted_target_point =self.Env.converted_target_point
+        self.converted_target_point = self.Env.converted_target_point
         self.OPEN = []  # priority queue / OPEN set
         self.CLOSED = []  # CLOSED set / VISITED order
         self.PARENT = dict()  # recorded parent
         self.g = dict()  # cost to come
         self.plotter = plotting_test.Plotting(self.s_start, self.s_goal,environment) 
+        self.memory_usage = []
+        self.memory_usage_peak = 0  # 初始化記憶體高峰值
+
+    def record_memory_usage(self):
+        process = psutil.Process(os.getpid())
+        current_memory_usage = process.memory_info().rss / 1024 / 1024  # 以MB為單位
+        self.memory_usage_peak = max(self.memory_usage_peak, current_memory_usage) 
     def searching(self):
         """
         A_star Searching.
@@ -223,23 +231,24 @@ class AStar:
             return math.hypot(goal[0] - s[0], goal[1] - s[1])
     def info_output(self,start_time,end_time,path):
         new_data = {
-        "障礙物總數": [len(self.Env.obs)],
-        "障礙物覆蓋率": [self.Env.obstacle_coverage],
         "地圖大小": [self.Env.get_map_size()],  
-        "地圖熵值":[self.Env.entropy],
+        "障礙物總數": [len(self.Env.obs)],
+        # "障礙物覆蓋率": [self.Env.obstacle_coverage],
+ 
+        "地圖熵值": [round(self.Env.entropy, 3)],
         "選用路徑規劃算法":["A*"],
         "尺度": [self.scale],
         "路徑長度": [f"{len(path)-1} "],  
-        "系統運行時間": [f"{end_time - start_time} 秒"],  
-        "目標點誤差值":[self.converted_target_point]
+        "系統運行時間": [f"{round(end_time - start_time, 3)} 秒"],  
+        "目標點誤差值": [round(self.converted_target_point, 3)]
     }
 
         # 調整列的顯示順序
-        columns_order = ["障礙物總數", "障礙物覆蓋率", "地圖大小", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
+        columns_order = ["地圖大小","障礙物總數", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
         
         # 將字典轉換成DataFrame
         new_df = pd.DataFrame(new_data)
-        file_path = 'output_astar.xlsx'
+        file_path = 'astar_隨機.xlsx'
         try:
 
             existing_df = pd.read_excel(file_path)
@@ -250,10 +259,21 @@ class AStar:
             updated_df = new_df
         # 重新排序列
         updated_df.to_excel(file_path, index=False, columns=columns_order)
-
+    def append_memory_usage_peak_to_excel(self):
+        memory_df = pd.DataFrame({"記憶體高峰使用量(MB)": [self.memory_usage_peak]})
+        file_path = 'memory_usage_astar.xlsx'
+        
+        if os.path.exists(file_path):
+            existing_df = pd.read_excel(file_path)
+            updated_df = pd.concat([existing_df, memory_df], ignore_index=True)
+        else:
+            updated_df = memory_df
+        
+        updated_df.to_excel(file_path, index=False)
 def main(scale):
     start_time = time.time()
     astar = AStar("euclidean",scale=scale)
+    astar.record_memory_usage()
     print("障礙物總數:", len(astar.Env.obs))
     # print("障礙物覆蓋率:",astar.Env.obstacle_coverage)
     print("地圖大小:", astar.Env.get_map_size())
@@ -265,12 +285,14 @@ def main(scale):
     s_goal = astar.s_goal
     environment=astar.Env
     plotter = astar.plotter
-    if scale == 'A':
-        plotter.plot_grid("A*,scale A")
-    elif scale == 'B':
-        plotter.plot_grid("A*,scale B")
+    astar.record_memory_usage()
+    # if scale == 'A':
+    #     plotter.plot_grid("A*,scale A")
+    # elif scale == 'B':
+    #     plotter.plot_grid("A*,scale B")
     # plot = plotting_test.Plotting(s_start,s_goal,environment)
     path, visited = astar.searching()
+    astar.record_memory_usage()
     print("路徑長度",len(path)-1)
     if scale == 'A':
         # plotter.animate_path(path) 
@@ -280,28 +302,33 @@ def main(scale):
         plotter.animation(path, visited, "A*,scale B")
     # plotter.animate_path(path) 
     # plotter.animation(path, visited, "A*")  # animation
+    astar.record_memory_usage()
     end_time = time.time()
     if scale == 'B':
         print("目標點誤差值",astar.converted_target_point)
     print(f"系統運行時間: {end_time - start_time:.3f} seconds") 
     # info_output = astar.info_output(start_time,end_time,path)
+    astar.append_memory_usage_peak_to_excel()
     # plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
     # plot.animation_ara_star(path, visited, "Repeated A*")
 def a_star_main():
-    main(scale='A')
-    plt.show(block=False)
-    main(scale='B')
-    plt.show()
-    # for _ in range(10):
-    #     try:
-    #         main(scale='A')
-    #         # plt.show(block=False)  
-    #         main(scale='B')
-    #         # plt.show()
-    #     except Exception as e:
-    #         print(e)
-    #         continue
+    # main(scale='A')
+    # plt.show(block=False)
+    # # plt.savefig('Astar_A.png',dpi=300, bbox_inches='tight')
+    # main(scale='B')
+    # # plt.savefig('Astar_B.png',dpi=300, bbox_inches='tight')
+    # plt.show()
+    for _ in range(10):
+        try:
+            main(scale='A')
+            # plt.show(block=False) 
+            main(scale='B')
+            # plt.show()
+            plt.close()
+        except Exception as e:
+            print(e)
+            continue
 
 if __name__ == '__main__':
   a_star_main()

@@ -50,7 +50,7 @@ class Env:
         self.obstacle_coverage = self.get_obstacle_coverage()
         self.map_size = self.get_map_size()
         self.obs_total = len(self.obs)
-
+        print("地圖熵值",self.entropy)
         if scale == 'A':
             self.start_point = self.s_start_first
             self.end_point = self.s_goal_first
@@ -210,6 +210,8 @@ class Env:
         return displacement
     # def adjust_coordinates(self,coord, x_range, y_range,point_name):
     def adjust_position(self,coord,obs, x_range, y_range,directions,point_name):
+            if x_range <= 0 or y_range <= 0:
+                raise ValueError("x_range 和 y_range 必須大於 0")
             x, y = coord
             if x >= x_range - 1:
                 print(f"座標轉換後{point_name}x軸位置錯誤,調整座標")
@@ -227,9 +229,10 @@ class Env:
                         print(f"{point_name}已移至新位置：{new_coord}")
                         return new_coord
                 print(f"{point_name}未找到合适的新位置，保持原位置。")
-            return new_coord  # 如果没有重叠或找不到新位置，就返回调整后或原始坐标
+            else:
+                print(f"{point_name}位置安全，無需移動。")
+            return new_coord    
             # return x, y
-    
     def adjust_for_obstacles(self,coord, obs, point_name):
             if coord in obs:
                 print(f"{point_name}與障礙物重疊，正在尋找新的位置...")
@@ -255,8 +258,8 @@ class Env:
         Returns:
         set: Updated set of obstacles including new random obstacles.
         """
-        if seed is not None:
-            random.seed(seed)
+        # if seed is not None:
+        #     random.seed(seed)
 
         while num_new_obstacles > 0:
             x = random.randint(0, x_limit - 1)
