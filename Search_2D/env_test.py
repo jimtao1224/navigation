@@ -258,8 +258,8 @@ class Env:
         Returns:
         set: Updated set of obstacles including new random obstacles.
         """
-        # if seed is not None:
-        #     random.seed(seed)
+        if seed is not None:
+            random.seed(seed)
 
         while num_new_obstacles > 0:
             x = random.randint(0, x_limit - 1)

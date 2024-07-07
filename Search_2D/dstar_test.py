@@ -101,15 +101,16 @@ class DStar:
         # self.plotter.animate_path(self.extract_path())
         print("路徑長度",len(self.extract_path())-1)
         end_time = time.time()
+        self.record_memory_usage()  # 記錄高峰值
         # info_output = self.info_output(start_time,end_time)
         if self.scale == 'B':
             print("目標點誤差值",self.converted_target_point)
         print(f"系統運行時間: {end_time - start_time:.3f} seconds")
         self.plotter.fig.canvas.mpl_connect('button_press_event', self.on_press)
-        self.record_memory_usage()  # 記錄高峰值
+        
 
         # 將記憶體使用高峰值附加到excel文件中
-        self.append_memory_usage_peak_to_excel()
+        # self.append_memory_usage_peak_to_excel()
         # self.fig.canvas.mpl_connect('button_press_event', self.on_press)
         # plt.show()
         # plt.close()
@@ -346,24 +347,25 @@ class DStar:
     def info_output(self,start_time,end_time):
         new_data = {
         "地圖大小": [self.Env.get_map_size()],  
-        "障礙物總數": [len(self.Env.obs)],
+
         # "障礙物覆蓋率": [self.Env.obstacle_coverage],
         "地圖熵值": [round(self.Env.entropy, 3)],
         "選用路徑規劃算法":["D* Lite"],
         "尺度": [self.scale],
         "路徑長度": [f"{len(self.extract_path())-1} "],  
         "系統運行時間": [f"{round(end_time - start_time, 3)} 秒"],  
-        "目標點誤差值": [round(self.converted_target_point, 3)]
+        "記憶體使用量":[f"{round(self.memory_usage_peak, 3)} MB"]
+
     }
 
         # 調整列的顯示順序
-        columns_order = ["地圖大小","障礙物總數", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
+        columns_order = ["地圖大小", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","記憶體使用量"]
       
 
         
         # 將字典轉換成DataFrame
         new_df = pd.DataFrame(new_data)
-        file_path = 'dstar_lite_隨機.xlsx'
+        file_path = 'algorithm_samemap.xlsx'
         try:
 
             existing_df = pd.read_excel(file_path)
@@ -387,27 +389,27 @@ def d_star_main():
     # dstar.run()
     # plt.show()
     # 分開顯示
-    for _ in range(20): 
-        try:   
-            dstar = DStar("euclidean",scale='A') 
-            dstar.run()
-            plt.show(block=False)  
-            dstar = DStar("euclidean",scale='B') 
-            dstar.run()
-            plt.close()
-        except Exception as e:
-            print(e)
-            continue
+    # for _ in range(20): 
+    #     try:   
+    #         dstar = DStar("euclidean",scale='A') 
+    #         dstar.run()
+    #         plt.show(block=False)  
+    #         dstar = DStar("euclidean",scale='B') 
+    #         dstar.run()
+    #         plt.close()
+    #     except Exception as e:
+    #         print(e)
+    #         continue
             # plt.show()
 
-            # dstar = DStar("euclidean",scale='A') 
-            # dstar.run()
+            dstar = DStar("euclidean",scale='A') 
+            dstar.run()
             # # plt.savefig('Dstar_A2.png',dpi=300,bbox_inches='tight')
-            # plt.show(block=False) 
-            # dstar = DStar("euclidean",scale='B') 
-            # dstar.run()
+            plt.show(block=False) 
+            dstar = DStar("euclidean",scale='B') 
+            dstar.run()
             # # plt.savefig('Dstar_B.png',dpi=300,bbox_inches='tight')
-            # plt.show()
+            plt.show()
             # 最後同步顯示
 if __name__ == '__main__':
     d_star_main()

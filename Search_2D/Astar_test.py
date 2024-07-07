@@ -37,7 +37,7 @@ class AStar:
         self.s_goal_first = self.Env.s_goal_first
         self.s_start = self.Env.start_point
         self.s_goal = self.Env.end_point
-
+        self.min_obstacle_count = self.Env.min_obstacle_count
         # self.s_start = s_start
         # self.s_goal = s_goal
         # self.Env = env.Env()  # class Env
@@ -232,23 +232,22 @@ class AStar:
     def info_output(self,start_time,end_time,path):
         new_data = {
         "地圖大小": [self.Env.get_map_size()],  
-        "障礙物總數": [len(self.Env.obs)],
         # "障礙物覆蓋率": [self.Env.obstacle_coverage],
- 
         "地圖熵值": [round(self.Env.entropy, 3)],
         "選用路徑規劃算法":["A*"],
         "尺度": [self.scale],
         "路徑長度": [f"{len(path)-1} "],  
         "系統運行時間": [f"{round(end_time - start_time, 3)} 秒"],  
-        "目標點誤差值": [round(self.converted_target_point, 3)]
+        "記憶體使用量":[f"{round(self.memory_usage_peak, 3)} MB"]
+        # "障礙物閥值": [self.min_obstacle_count]
     }
 
         # 調整列的顯示順序
-        columns_order = ["地圖大小","障礙物總數", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
+        columns_order = ["地圖大小","地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","記憶體使用量"]
         
         # 將字典轉換成DataFrame
         new_df = pd.DataFrame(new_data)
-        file_path = 'astar_隨機.xlsx'
+        file_path = 'algorithm_samemap.xlsx'
         try:
 
             existing_df = pd.read_excel(file_path)
@@ -307,28 +306,28 @@ def main(scale):
     if scale == 'B':
         print("目標點誤差值",astar.converted_target_point)
     print(f"系統運行時間: {end_time - start_time:.3f} seconds") 
-    # info_output = astar.info_output(start_time,end_time,path)
-    astar.append_memory_usage_peak_to_excel()
+    info_output = astar.info_output(start_time,end_time,path)
+    # astar.append_memory_usage_peak_to_excel()
     # plt.show()
     # path, visited = astar.searching_repeated_astar(2.5)               # initial weight e = 2.5
     # plot.animation_ara_star(path, visited, "Repeated A*")
 def a_star_main():
-    # main(scale='A')
-    # plt.show(block=False)
+    main(scale='A')
+    plt.show(block=False)
     # # plt.savefig('Astar_A.png',dpi=300, bbox_inches='tight')
-    # main(scale='B')
+    main(scale='B')
     # # plt.savefig('Astar_B.png',dpi=300, bbox_inches='tight')
-    # plt.show()
-    for _ in range(10):
-        try:
-            main(scale='A')
-            # plt.show(block=False) 
-            main(scale='B')
-            # plt.show()
-            plt.close()
-        except Exception as e:
-            print(e)
-            continue
+    plt.show()
+    # for _ in range(2):
+    #     try:
+    #         main(scale='A')
+    #         # plt.show(block=False) 
+    #         main(scale='B')
+    #         # plt.show()
+    #         plt.close()
+    #     except Exception as e:
+    #         print(e)
+    #         continue
 
 if __name__ == '__main__':
   a_star_main()

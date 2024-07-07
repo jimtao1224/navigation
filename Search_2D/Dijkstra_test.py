@@ -58,7 +58,7 @@ class Dijkstra(AStar):
     def info_output_Dijkstra(self,start_time,end_time,path):
         new_data = {
         "地圖大小": [self.Env.get_map_size()],  
-        "障礙物總數": [len(self.Env.obs)],
+
         # "障礙物覆蓋率": [self.Env.obstacle_coverage],
  
         "地圖熵值": [round(self.Env.entropy, 3)],
@@ -66,15 +66,17 @@ class Dijkstra(AStar):
         "尺度": [self.scale],
         "路徑長度": [f"{len(path)-1} "],  
         "系統運行時間": [f"{round(end_time - start_time, 3)} 秒"],  
-        "目標點誤差值": [round(self.converted_target_point, 3)]
+        "記憶體使用量":[f"{round(self.memory_usage_peak, 3)} MB"]
+
+
     }
 
         # 調整列的顯示順序
-        columns_order = ["地圖大小","障礙物總數", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","目標點誤差值"]
+        columns_order = ["地圖大小", "地圖熵值", "選用路徑規劃算法", "尺度","路徑長度", "系統運行時間","記憶體使用量"]
          
         # 將字典轉換成DataFrame
         new_df = pd.DataFrame(new_data)
-        file_path = 'dijkstra_隨機.xlsx'
+        file_path = 'algorithm_samemap.xlsx'
         try:
 
             existing_df = pd.read_excel(file_path)
@@ -150,30 +152,31 @@ def main(scale):
     if scale == 'B':
         print("目標點誤差值",dijkstra.converted_target_point)
     print(f"系統運行時間: {end_time - start_time:.3f} seconds")
-    dijkstra.info_output_Dijkstra(start_time,end_time,path)
     dijkstra.record_memory_usage()
-    dijkstra.append_memory_usage_peak_to_excel_2()
+    dijkstra.info_output_Dijkstra(start_time,end_time,path)
+    
+    # dijkstra.append_memory_usage_peak_to_excel_2()
     # plot.animation(path, visited, "Dijkstra's")  # animation generate
     
 def Dijkstra_main():
-    # main(scale='A')
-    # # plt.savefig('Dijkstar_A.png',dpi=300, bbox_inches='tight')
-    # plt.show(block=False)
-    # main(scale='B')
-    # # plt.savefig('Dijkstar_B.png',dpi=1000, bbox_inches='tight')
-    # plt.show()
-    for _ in range(20):
-            try:
-                main(scale='A')
-                plt.savefig('Dijkstar_A.png',dpi=1000)
-                # plt.show(block=False)  
-                main(scale='B')
-                plt.savefig('Dijkstar_B.png',dpi=1000)
-                # plt.show()
-                plt.close()
-            except Exception as e:
-                print(e)
-                continue
+    main(scale='A')
+    # plt.savefig('Dijkstar_A.png',dpi=300, bbox_inches='tight')
+    plt.show(block=False)
+    main(scale='B')
+    # plt.savefig('Dijkstar_B.png',dpi=1000, bbox_inches='tight')
+    plt.show()
+    # for _ in range(20):
+    #         try:
+    #             main(scale='A')
+    #             plt.savefig('Dijkstar_A.png',dpi=1000)
+    #             # plt.show(block=False)  
+    #             main(scale='B')
+    #             plt.savefig('Dijkstar_B.png',dpi=1000)
+    #             # plt.show()
+    #             plt.close()
+    #         except Exception as e:
+    #             print(e)
+    #             continue
 
 if __name__ == '__main__':
  Dijkstra_main()
